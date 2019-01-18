@@ -199,6 +199,21 @@ public class TokenSessionBO {
 			}
 		}
 
+        BanEntity banEntity = authenticationBO.checkUserBan(userEntity);
+
+        if (banEntity != null) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Your account has been banned");
+            if (banEntity.getEndsAt() != null) {
+                sb.append("until ");
+                sb.append(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL).withZone(ZoneId.systemDefault()).format(banEntity.getEndsAt()));
+            }
+            sb.append('\n');
+            sb.append("Reason: ");
+            sb.append(banEntity.getReason());
+            throw new AuthException(sb.toString());
+        }
+
 		userEntity.setLastLogin(LocalDateTime.now());
 		userDAO.update(userEntity);
 
