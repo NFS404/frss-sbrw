@@ -6,6 +6,7 @@ import com.soapboxrace.core.api.util.UUIDGen;
 import com.soapboxrace.core.bo.util.PwnedPasswords;
 import com.soapboxrace.core.dao.TokenSessionDAO;
 import com.soapboxrace.core.dao.UserDAO;
+import com.soapboxrace.core.jpa.BanEntity;
 import com.soapboxrace.core.jpa.PersonaEntity;
 import com.soapboxrace.core.jpa.TokenSessionEntity;
 import com.soapboxrace.core.jpa.UserEntity;
@@ -22,6 +23,9 @@ import javax.ws.rs.core.MediaType;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Base64;
 import java.util.Date;
 
@@ -40,7 +44,7 @@ public class TokenSessionBO {
 	private GetServerInformationBO serverInfoBO;
 
 	@EJB
-	private OnlineUsersBO onlineUsersBO;
+	private AuthenticationBO authenticationBO;
 
 	@EJB
 	private Argon2BO argon2;
@@ -139,24 +143,16 @@ public class TokenSessionBO {
 		if (email != null && !email.isEmpty() && password != null && !password.isEmpty()) {
 			UserEntity userEntity = userDAO.findByEmail(email);
 			if (userEntity != null) {
-				int numberOfUsersOnlineNow = onlineUsersBO.getNumberOfUsersOnlineNow();
-				int maxOlinePayers = parameterBO.getIntParam("MAX_ONLINE_PLAYERS");
-				if (numberOfUsersOnlineNow >= maxOlinePayers && !userEntity.isPremium()) {
-					loginStatusVO.setDescription("SERVER FULL");
-					return loginStatusVO;
-				}
 				if (password.equals(userEntity.getPassword())) {
-					if (userEntity.getHwid() == null || userEntity.getHwid().trim().isEmpty()) {
-						userEntity.setHwid(httpRequest.getHeader("X-HWID"));
-					}
+					BanEntity banEntity = authenticationBO.checkUserBan(userEntity);
 
-					if (userEntity.getIpAddress() == null || userEntity.getIpAddress().trim().isEmpty()) {
-						String forwardedFor;
-						if ((forwardedFor = httpRequest.getHeader("X-Forwarded-For")) != null && parameterBO.getBoolParam("USE_FORWARDED_FOR")) {
-							userEntity.setIpAddress(parameterBO.getBoolParam("GOOGLE_LB_ENABLED") ? forwardedFor.split(",")[0] : forwardedFor);
-						} else {
-							userEntity.setIpAddress(httpRequest.getRemoteAddr());
-						}
+					if (banEntity != null) {
+						LoginStatusVO.Ban ban = new LoginStatusVO.Ban();
+						ban.setReason(banEntity.getReason());
+						if (banEntity.getEndsAt() != null)
+							ban.setExpires(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL).withZone(ZoneId.systemDefault()).format(banEntity.getEndsAt()));
+						loginStatusVO.setBan(ban);
+						return loginStatusVO;
 					}
 
 					userEntity.setLastLogin(LocalDateTime.now());
