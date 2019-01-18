@@ -48,6 +48,8 @@ public class ServerInfoEntity {
 	private boolean requireTicket = false;
 	@Transient
 	private String serverVersion;
+	@Transient
+	private boolean modernAuthSupport = true;
 
 	public String getMessageSrv() {
 		return messageSrv;
@@ -185,4 +187,11 @@ public class ServerInfoEntity {
 		this.allowedCountries = allowedCountries;
 	}
 
+	public boolean isModernAuthSupport() {
+		return modernAuthSupport;
+	}
+
+	public void setModernAuthSupport(boolean modernAuthSupport) {
+		this.modernAuthSupport = modernAuthSupport;
+	}
 }

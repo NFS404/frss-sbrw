@@ -1,24 +1,13 @@
 package com.soapboxrace.core.api;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Objects;
-
-import javax.ejb.EJB;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
-import com.soapboxrace.core.api.util.*;
-import com.soapboxrace.core.bo.*;
+import com.soapboxrace.core.api.util.BanUtil;
+import com.soapboxrace.core.api.util.ConcurrentUtil;
+import com.soapboxrace.core.api.util.LauncherChecks;
+import com.soapboxrace.core.api.util.Secured;
+import com.soapboxrace.core.bo.AuthenticationBO;
+import com.soapboxrace.core.bo.PresenceManager;
+import com.soapboxrace.core.bo.TokenSessionBO;
+import com.soapboxrace.core.bo.UserBO;
 import com.soapboxrace.core.dao.FriendDAO;
 import com.soapboxrace.core.dao.PersonaDAO;
 import com.soapboxrace.core.jpa.BanEntity;
@@ -26,11 +15,23 @@ import com.soapboxrace.core.jpa.FriendEntity;
 import com.soapboxrace.core.jpa.PersonaEntity;
 import com.soapboxrace.core.jpa.UserEntity;
 import com.soapboxrace.core.xmpp.OpenFireSoapBoxCli;
+import com.soapboxrace.jaxb.*;
 import com.soapboxrace.jaxb.http.ArrayOfBadgePacket;
 import com.soapboxrace.jaxb.http.PersonaBase;
 import com.soapboxrace.jaxb.http.UserInfo;
 import com.soapboxrace.jaxb.login.LoginStatusVO;
 import com.soapboxrace.jaxb.xmpp.XMPP_ResponseTypePersonaBase;
+
+import javax.ejb.EJB;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.util.List;
+import java.util.Objects;
 
 @Path("User")
 public class User
@@ -209,5 +210,35 @@ public class User
 			return Response.ok(loginStatusVO).build();
 		}
 		return Response.serverError().entity(loginStatusVO).build();
+	}
+
+	@POST
+	@Path("modernRegister")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@LauncherChecks
+	public Response modernRegister(ModernRegisterRequest req)
+	{
+		try {
+			userBO.createModernUser(req.getEmail(), req.getPassword(), req.getTicket());
+		} catch (AuthException e) {
+			return Response.status(Response.Status.BAD_REQUEST).entity(new JSONError(e.getMessage())).build();
+		}
+		return Response.ok(new ModernRegisterResponse("Account created!")).build();
+	}
+
+	@POST
+	@Path("modernAuth")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@LauncherChecks
+	public Response modernAuth(ModernAuthRequest req)
+	{
+		try {
+			ModernAuthResponse resp = tokenBO.modernLogin(req.getEmail(), req.getPassword(), req.getUpgrade());
+			return Response.ok(resp).build();
+		} catch (AuthException e) {
+			return Response.status(Response.Status.BAD_REQUEST).entity(new JSONError(e.getMessage())).build();
+		}
 	}
 }
