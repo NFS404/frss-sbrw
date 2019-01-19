@@ -1,17 +1,9 @@
 package com.soapboxrace.core.jpa;
 
-import java.util.List;
-
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
 import com.soapboxrace.core.jpa.convert.SceneryGroupConverter;
+
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "SERVER_INFO")
@@ -35,6 +27,7 @@ public class ServerInfoEntity {
 	private String ownerList;
 	private Integer numberOfRegistered;
 	private String allowedCountries;
+	private String iconUrl;
 
 	@Convert(converter = SceneryGroupConverter.class)
 	private List<String> activatedHolidaySceneryGroups;
@@ -186,12 +179,20 @@ public class ServerInfoEntity {
 	public void setAllowedCountries(String allowedCountries) {
 		this.allowedCountries = allowedCountries;
 	}
-
+	
 	public boolean isModernAuthSupport() {
 		return modernAuthSupport;
 	}
 
 	public void setModernAuthSupport(boolean modernAuthSupport) {
 		this.modernAuthSupport = modernAuthSupport;
+	}
+
+	public String getIconUrl() {
+		return iconUrl;
+	}
+
+	public void setIconUrl(String iconUrl) {
+		this.iconUrl = iconUrl;
 	}
 }
