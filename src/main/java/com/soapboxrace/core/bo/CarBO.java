@@ -127,7 +127,7 @@ public class CarBO
         carBrandMap.put("PICKUP", "UNLOCALIZED_STRING");
         carBrandMap.put("POLICEINTERCEPTOR", "UNLOCALIZED_STRING");
         carBrandMap.put("QUATTRO20V", "AUDI");
-        carBrandMap.put("R32", "NISSAN");
+        carBrandMap.put("R32", "VOLKSWAGEN");
         carBrandMap.put("R34GTR", "NISSAN");
         carBrandMap.put("R8", "AUDI");
         carBrandMap.put("REVENTON", "LAMBORGHINI");
