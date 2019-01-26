@@ -179,7 +179,7 @@ public class ServerInfoEntity {
 	public void setAllowedCountries(String allowedCountries) {
 		this.allowedCountries = allowedCountries;
 	}
-	
+
 	public boolean isModernAuthSupport() {
 		return modernAuthSupport;
 	}
