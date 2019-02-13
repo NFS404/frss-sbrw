@@ -42,7 +42,7 @@ public class ServerInfoEntity {
 	@Transient
 	private String serverVersion;
 	@Transient
-	private boolean modernAuthSupport = true;
+	private boolean modernAuthSupport;
 
 	public String getMessageSrv() {
 		return messageSrv;

@@ -177,6 +177,10 @@ public class TokenSessionBO {
 	}
 
 	public ModernAuthResponse modernLogin(String email, String password, boolean upgrade) throws AuthException {
+		if (parameterBO.getBoolParam("MODERN_AUTH_DISABLE")) {
+			throw new AuthException("Modern Auth not enabled!");
+		}
+
 		UserEntity userEntity = userDAO.findByEmail(email);
 		if (userEntity == null) {
 			throw new AuthException("Invalid username or password");

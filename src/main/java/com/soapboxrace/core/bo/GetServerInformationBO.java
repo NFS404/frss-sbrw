@@ -1,10 +1,10 @@
 package com.soapboxrace.core.bo;
 
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-
 import com.soapboxrace.core.dao.ServerInfoDAO;
 import com.soapboxrace.core.jpa.ServerInfoEntity;
+
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
 
 @Stateless
 public class GetServerInformationBO {
@@ -31,6 +31,8 @@ public class GetServerInformationBO {
 		if (maxOnlinePlayers != 0) {
 //			serverInfoEntity.setMaxUsersAllowed(maxOnlinePlayers);
 		}
+
+		serverInfoEntity.setModernAuthSupport(!parameterBO.getBoolParam("MODERN_AUTH_DISABLE"));
 
 		return serverInfoEntity;
 	}
