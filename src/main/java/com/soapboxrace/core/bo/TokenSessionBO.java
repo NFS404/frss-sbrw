@@ -208,7 +208,7 @@ public class TokenSessionBO {
             StringBuilder sb = new StringBuilder();
             sb.append("Your account has been banned");
             if (banEntity.getEndsAt() != null) {
-                sb.append("until ");
+                sb.append(" until ");
                 sb.append(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL).withZone(ZoneId.systemDefault()).format(banEntity.getEndsAt()));
             }
             sb.append('\n');
