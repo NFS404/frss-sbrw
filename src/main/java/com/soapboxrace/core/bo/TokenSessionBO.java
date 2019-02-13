@@ -186,17 +186,16 @@ public class TokenSessionBO {
 			throw new AuthException("Invalid username or password");
 		}
 		if (userEntity.getPassword().length() == 40) {
-			if (!upgrade) {
-				throw new AuthException("upgrade needed");
-			}
 			@SuppressWarnings("deprecation")
 			String legacyHash = Hashing.sha1().hashString(password, StandardCharsets.UTF_8).toString();
 			if (!legacyHash.equals(userEntity.getPassword())) {
 				throw new AuthException("Invalid username or password");
 			}
 
-			String hash = argon2.hash(password);
-			userEntity.setPassword(hash);
+            if (upgrade) {
+                String hash = argon2.hash(password);
+                userEntity.setPassword(hash);
+            }
 		} else {
 			if (!argon2.verify(userEntity.getPassword(), password)) {
 				throw new AuthException("Invalid username or password");
