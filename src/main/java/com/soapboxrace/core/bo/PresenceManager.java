@@ -40,11 +40,6 @@ public class PresenceManager
     @Schedule(minute = "*/5", hour = "*", persistent = false)
     public void removeOldPersonas() {
         List<Long> personas = openfire.getOnlinePersonas();
-
-        for (Long persona : presenceMap.keySet()) {
-            if (!personas.contains(persona)) {
-                presenceMap.remove(persona);
-            }
-        }
+        presenceMap.keySet().removeIf(persona -> !personas.contains(persona));
     }
 }
