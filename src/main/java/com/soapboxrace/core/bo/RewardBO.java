@@ -290,9 +290,15 @@ public class RewardBO {
 	}
 
 	public RewardVO getRewardVO(PersonaEntity personaEntity) {
+        int maxLevel;
+		if (personaEntity.getUser().isPremium()) {
+			maxLevel = parameterBO.getIntParam("MAX_LEVEL_PREMIUM");
+		} else {
+			maxLevel = parameterBO.getIntParam("MAX_LEVEL_FREE");
+		}
 		Boolean enableEconomy = parameterBO.getBoolParam("ENABLE_ECONOMY");
 		Boolean enableReputation = parameterBO.getBoolParam("ENABLE_REPUTATION");
-		if (personaEntity.getLevel() >= 60) {
+		if (personaEntity.getLevel() >= maxLevel) {
 			enableReputation = false;
 		}
 		if (personaEntity.getBoost() > 9999999) {
