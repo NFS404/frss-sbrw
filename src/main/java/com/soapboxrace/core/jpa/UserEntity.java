@@ -49,6 +49,8 @@ public class UserEntity {
 	@Column(name = "lastLogin")
 	private LocalDateTime lastLogin;
 
+	private String userAgent;
+
 	public void setId(Long id) {
 		this.id = id;
 	}

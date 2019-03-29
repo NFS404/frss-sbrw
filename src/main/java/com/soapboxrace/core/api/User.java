@@ -261,7 +261,7 @@ public class User
 	public Response modernAuth(ModernAuthRequest req)
 	{
 		try {
-			ModernAuthResponse resp = tokenBO.modernLogin(req.getEmail(), req.getPassword(), req.getUpgrade());
+			ModernAuthResponse resp = tokenBO.modernLogin(req.getEmail(), req.getPassword(), req.getUpgrade(), sr);
 			return Response.ok(resp).build();
 		} catch (AuthException e) {
 			return Response.status(Response.Status.BAD_REQUEST).entity(new JSONError(e.getMessage())).build();

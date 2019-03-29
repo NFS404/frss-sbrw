@@ -156,6 +156,9 @@ public class TokenSessionBO {
 					}
 
 					userEntity.setLastLogin(LocalDateTime.now());
+					userEntity.setIpAddress(httpRequest.getHeader("X-Forwarded-For"));
+					String xUA = httpRequest.getHeader("X-User-Agent");
+					userEntity.setUserAgent(xUA != null ? xUA : httpRequest.getHeader("User-Agent"));
 					userDAO.update(userEntity);
 					Long userId = userEntity.getId();
 					deleteByUserId(userId);
@@ -176,7 +179,7 @@ public class TokenSessionBO {
 		return loginStatusVO;
 	}
 
-	public ModernAuthResponse modernLogin(String email, String password, boolean upgrade) throws AuthException {
+	public ModernAuthResponse modernLogin(String email, String password, boolean upgrade, HttpServletRequest request) throws AuthException {
 		if (parameterBO.getBoolParam("MODERN_AUTH_DISABLE")) {
 			throw new AuthException("Modern Auth not enabled!");
 		}
@@ -220,6 +223,9 @@ public class TokenSessionBO {
         }
 
 		userEntity.setLastLogin(LocalDateTime.now());
+        userEntity.setIpAddress(request.getHeader("X-Forwarded-For"));
+        String xUA = request.getHeader("X-User-Agent");
+        userEntity.setUserAgent(xUA != null ? xUA : request.getHeader("User-Agent"));
 		userDAO.update(userEntity);
 
 		ModernAuthResponse response = new ModernAuthResponse();
