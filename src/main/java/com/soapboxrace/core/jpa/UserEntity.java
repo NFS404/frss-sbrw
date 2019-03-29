@@ -1,5 +1,7 @@
 package com.soapboxrace.core.jpa;
 
+import org.hibernate.annotations.Where;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,6 +34,7 @@ public class UserEntity {
 	private String ipAddress;
 
 	@OneToMany(mappedBy = "user", targetEntity = PersonaEntity.class)
+	@Where(clause = "deletedAt IS NULL")
 	private List<PersonaEntity> listOfProfile;
 
 	@Column(name = "premium")
@@ -134,4 +137,11 @@ public class UserEntity {
 		this.gameHardwareHash = gameHardwareHash;
 	}
 
+	public String getUserAgent() {
+		return userAgent;
+	}
+
+	public void setUserAgent(String userAgent) {
+		this.userAgent = userAgent;
+	}
 }
