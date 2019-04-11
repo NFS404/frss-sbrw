@@ -129,24 +129,26 @@ public class BasketBO
             return CommerceResultStatus.FAIL_INVALID_BASKET;
         }
 
-        boolean upgradedAmount = false;
+        int maxUsage;
+        if (personaEntity.getUser().isPremium()) {
+            maxUsage = parameterBO.getIntParam("MAX_POWERUPS_PREMIUM", 250);
+        } else {
+            maxUsage = parameterBO.getIntParam("MAX_POWERUPS_FREE", 250);
+        }
 
         int newUsageCount = item.getRemainingUseCount() + 15;
 
-        if (newUsageCount > 250)
-            newUsageCount = 250;
+        if (newUsageCount > maxUsage)
+            newUsageCount = maxUsage;
 
-        if (item.getRemainingUseCount() != newUsageCount)
-            upgradedAmount = true;
-
-        item.setRemainingUseCount(newUsageCount);
-        inventoryItemDao.update(item);
-
-        if (upgradedAmount)
+        if (newUsageCount > item.getRemainingUseCount())
         {
             personaEntity.setCash(personaEntity.getCash() - powerupProduct.getPrice());
             personaDao.update(personaEntity);
         }
+
+        item.setRemainingUseCount(newUsageCount);
+        inventoryItemDao.update(item);
 
         return CommerceResultStatus.SUCCESS;
     }
