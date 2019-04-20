@@ -80,7 +80,8 @@ public class BasketBO
     public CommerceResultStatus repairCar(String productId, PersonaEntity personaEntity)
     {
         CarSlotEntity defaultCarEntity = personaBo.getDefaultCarEntity(personaEntity.getPersonaId());
-        int price = (int) (productDao.findByProductId(productId).getPrice() * (100 - defaultCarEntity.getOwnedCar().getDurability()));
+        float basePrice = productDao.findByProductId(productId).getUserPrice(personaEntity.getUser());
+        int price = (int) (basePrice * (100 - defaultCarEntity.getOwnedCar().getDurability()));
         if (personaEntity.getCash() < price)
         {
             return CommerceResultStatus.FAIL_INSUFFICIENT_FUNDS;
@@ -100,13 +101,13 @@ public class BasketBO
     public CommerceResultStatus reviveTh(String productId, PersonaEntity personaEntity)
     {
         ProductEntity product = productDao.findByProductId(productId);
-        if (personaEntity.getCash() < product.getPrice())
+        if (personaEntity.getCash() < product.getUserPrice(personaEntity.getUser()))
         {
             return CommerceResultStatus.FAIL_INSUFFICIENT_FUNDS;
         }
         if (parameterBO.getBoolParam("ENABLE_ECONOMY"))
         {
-            personaEntity.setCash(personaEntity.getCash() - product.getPrice());
+            personaEntity.setCash(personaEntity.getCash() - product.getUserPrice(personaEntity.getUser()));
             personaDao.update(personaEntity);
         }
 
@@ -131,7 +132,7 @@ public class BasketBO
             return CommerceResultStatus.FAIL_INVALID_BASKET;
         }
 
-        if (personaEntity.getCash() < powerupProduct.getPrice())
+        if (personaEntity.getCash() < powerupProduct.getUserPrice(personaEntity.getUser()))
         {
             return CommerceResultStatus.FAIL_INSUFFICIENT_FUNDS;
         }
@@ -166,7 +167,7 @@ public class BasketBO
 
         if (newUsageCount > item.getRemainingUseCount())
         {
-            personaEntity.setCash(personaEntity.getCash() - powerupProduct.getPrice());
+            personaEntity.setCash(personaEntity.getCash() - powerupProduct.getUserPrice(personaEntity.getUser()));
             personaDao.update(personaEntity);
         }
 
@@ -184,7 +185,7 @@ public class BasketBO
         }
 
         ProductEntity productEntity = productDao.findByProductId(productId);
-        if (productEntity == null || personaEntity.getCash() < productEntity.getPrice())
+        if (productEntity == null || personaEntity.getCash() < productEntity.getUserPrice(personaEntity.getUser()))
         {
             return CommerceResultStatus.FAIL_INSUFFICIENT_FUNDS;
         }
@@ -193,7 +194,7 @@ public class BasketBO
 
         if (parameterBO.getBoolParam("ENABLE_ECONOMY"))
         {
-            personaEntity.setCash(personaEntity.getCash() - productEntity.getPrice());
+            personaEntity.setCash(personaEntity.getCash() - productEntity.getUserPrice(personaEntity.getUser()));
         }
         personaDao.update(personaEntity);
 
