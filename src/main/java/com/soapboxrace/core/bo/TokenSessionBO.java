@@ -49,6 +49,9 @@ public class TokenSessionBO {
 	@EJB
 	private Argon2BO argon2;
 
+	@EJB
+	private AnalyticsBO analyticsBO;
+
 	public boolean verifyToken(Long userId, String securityToken) {
 		TokenSessionEntity tokenSessionEntity = tokenDAO.findById(securityToken);
 		if (tokenSessionEntity == null || !tokenSessionEntity.getUserId().equals(userId)) {
@@ -160,6 +163,8 @@ public class TokenSessionBO {
 					String xUA = httpRequest.getHeader("X-User-Agent");
 					userEntity.setUserAgent(xUA != null ? xUA : httpRequest.getHeader("User-Agent"));
 					userDAO.update(userEntity);
+					analyticsBO.trackUserLogin(userEntity);
+
 					Long userId = userEntity.getId();
 					deleteByUserId(userId);
 					String randomUUID = createToken(userId, null);
@@ -227,6 +232,7 @@ public class TokenSessionBO {
         String xUA = request.getHeader("X-User-Agent");
         userEntity.setUserAgent(xUA != null ? xUA : request.getHeader("User-Agent"));
 		userDAO.update(userEntity);
+		analyticsBO.trackUserLogin(userEntity);
 
 		ModernAuthResponse response = new ModernAuthResponse();
 		Long userId = userEntity.getId();
