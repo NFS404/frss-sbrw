@@ -63,6 +63,9 @@ public class BasketBO
     @EJB
     private CarBO carBO;
 
+    @EJB
+    private TreasureHuntDAO treasureHuntDAO;
+
     private OwnedCarTrans getCar(String productId)
     {
         BasketDefinitionEntity basketDefinitonEntity = basketDefinitionsDAO.findById(productId);
@@ -91,6 +94,26 @@ public class BasketBO
         defaultCarEntity.getOwnedCar().setDurability(100);
 
         carSlotDAO.update(defaultCarEntity);
+        return CommerceResultStatus.SUCCESS;
+    }
+
+    public CommerceResultStatus reviveTh(String productId, PersonaEntity personaEntity)
+    {
+        ProductEntity product = productDao.findByProductId(productId);
+        if (personaEntity.getCash() < product.getPrice())
+        {
+            return CommerceResultStatus.FAIL_INSUFFICIENT_FUNDS;
+        }
+        if (parameterBO.getBoolParam("ENABLE_ECONOMY"))
+        {
+            personaEntity.setCash(personaEntity.getCash() - product.getPrice());
+            personaDao.update(personaEntity);
+        }
+
+        TreasureHuntEntity th = treasureHuntDAO.findById(personaEntity.getPersonaId());
+        th.setIsStreakBroken(false);
+        treasureHuntDAO.update(th);
+
         return CommerceResultStatus.SUCCESS;
     }
 
