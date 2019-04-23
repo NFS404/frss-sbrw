@@ -10,7 +10,9 @@ import java.util.List;
 @Table(name = "USER")
 @NamedQueries({ //
 		@NamedQuery(name = "UserEntity.findAll", query = "SELECT obj FROM UserEntity obj"),
-		@NamedQuery(name = "UserEntity.findByEmail", query = "SELECT obj FROM UserEntity obj WHERE obj.email = :email") //
+		@NamedQuery(name = "UserEntity.findByEmail", query = "SELECT obj FROM UserEntity obj WHERE obj.email = :email"),
+		@NamedQuery(name = "UserEntity.findByVerifyToken",
+				query = "SELECT obj FROM UserEntity obj WHERE obj.verifyToken = :token")
 })
 public class UserEntity {
 
@@ -50,6 +52,8 @@ public class UserEntity {
 	private LocalDateTime lastLogin;
 
 	private String userAgent;
+
+	private String verifyToken;
 
 	public void setId(Long id) {
 		this.id = id;
@@ -145,5 +149,13 @@ public class UserEntity {
 
 	public void setUserAgent(String userAgent) {
 		this.userAgent = userAgent;
+	}
+
+	public String getVerifyToken() {
+		return verifyToken;
+	}
+
+	public void setVerifyToken(String verifyToken) {
+		this.verifyToken = verifyToken;
 	}
 }

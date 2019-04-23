@@ -193,6 +193,9 @@ public class TokenSessionBO {
 		if (userEntity == null) {
 			throw new AuthException("Invalid username or password");
 		}
+		if (userEntity.getVerifyToken() != null) {
+			throw new AuthException("Email not verified");
+		}
 		if (userEntity.getPassword().length() == 40) {
 			@SuppressWarnings("deprecation")
 			String legacyHash = Hashing.sha1().hashString(password, StandardCharsets.UTF_8).toString();
