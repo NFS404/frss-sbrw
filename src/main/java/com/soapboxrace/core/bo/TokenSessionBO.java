@@ -147,6 +147,7 @@ public class TokenSessionBO {
 			UserEntity userEntity = userDAO.findByEmail(email);
 			if (userEntity != null) {
 				if (password.equals(userEntity.getPassword())) {
+					userEntity.setIpAddress(httpRequest.getHeader("X-Forwarded-For"));
 					BanEntity banEntity = authenticationBO.checkUserBan(userEntity);
 
 					if (banEntity != null) {
@@ -159,7 +160,6 @@ public class TokenSessionBO {
 					}
 
 					userEntity.setLastLogin(LocalDateTime.now());
-					userEntity.setIpAddress(httpRequest.getHeader("X-Forwarded-For"));
 					String xUA = httpRequest.getHeader("X-User-Agent");
 					userEntity.setUserAgent(xUA != null ? xUA : httpRequest.getHeader("User-Agent"));
 					userDAO.update(userEntity);
@@ -213,6 +213,7 @@ public class TokenSessionBO {
 			}
 		}
 
+		userEntity.setIpAddress(request.getHeader("X-Forwarded-For"));
         BanEntity banEntity = authenticationBO.checkUserBan(userEntity);
 
         if (banEntity != null) {
@@ -231,7 +232,6 @@ public class TokenSessionBO {
         }
 
 		userEntity.setLastLogin(LocalDateTime.now());
-        userEntity.setIpAddress(request.getHeader("X-Forwarded-For"));
         String xUA = request.getHeader("X-User-Agent");
         userEntity.setUserAgent(xUA != null ? xUA : request.getHeader("User-Agent"));
 		userDAO.update(userEntity);

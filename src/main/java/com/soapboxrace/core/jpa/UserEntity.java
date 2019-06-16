@@ -27,9 +27,6 @@ public class UserEntity {
 	@Column(name = "PASSWORD", length = 255)
 	private String password;
 
-	@Column(name = "HWID")
-	private String hwid;
-
 	private String gameHardwareHash;
 
 	@Column(name = "IP_ADDRESS")
@@ -81,14 +78,6 @@ public class UserEntity {
 
 	public List<PersonaEntity> getListOfProfile() {
 		return listOfProfile;
-	}
-
-	public String getHwid() {
-		return hwid;
-	}
-
-	public void setHwid(String hwid) {
-		this.hwid = hwid;
 	}
 
 	public String getIpAddress() {

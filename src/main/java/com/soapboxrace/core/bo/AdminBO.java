@@ -2,11 +2,9 @@ package com.soapboxrace.core.bo;
 
 import com.soapboxrace.core.api.util.MiscUtils;
 import com.soapboxrace.core.dao.BanDAO;
-import com.soapboxrace.core.dao.HardwareInfoDAO;
 import com.soapboxrace.core.dao.PersonaDAO;
 import com.soapboxrace.core.dao.UserDAO;
 import com.soapboxrace.core.jpa.BanEntity;
-import com.soapboxrace.core.jpa.HardwareInfoEntity;
 import com.soapboxrace.core.jpa.PersonaEntity;
 import com.soapboxrace.core.jpa.UserEntity;
 import com.soapboxrace.core.xmpp.OpenFireSoapBoxCli;
@@ -29,9 +27,6 @@ public class AdminBO {
 
 	@EJB
 	private BanDAO banDAO;
-
-	@EJB
-	private HardwareInfoDAO hardwareInfoDAO;
 
 	@EJB
 	private OpenFireSoapBoxCli openFireSoapBoxCli;
@@ -84,17 +79,10 @@ public class AdminBO {
 		banEntity.setStarted(LocalDateTime.now());
 		banEntity.setReason(reason);
 		banEntity.setBannedBy(bannedBy);
-		banEntity.setWillEnd(endsOn != null);
+		banEntity.setHwid(userEntity.getGameHardwareHash());
+		banEntity.setIp(userEntity.getIpAddress());
 		banDAO.insert(banEntity);
-		userDao.update(userEntity);
 		sendKick(userEntity.getId(), personaEntity.getPersonaId());
-
-		HardwareInfoEntity hardwareInfoEntity = hardwareInfoDAO.findByUserId(userEntity.getId());
-
-		if (hardwareInfoEntity != null) {
-			hardwareInfoEntity.setBanned(true);
-			hardwareInfoDAO.update(hardwareInfoEntity);
-		}
 	}
 
 	private void sendKick(Long userId, Long personaId)
