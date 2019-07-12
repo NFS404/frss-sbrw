@@ -20,7 +20,7 @@ public class BanDAO extends BaseDAO<BanEntity> {
 	}
 
 	public BanEntity findByUser(UserEntity userEntity) {
-		TypedQuery<BanEntity> query = entityManager.createQuery("SELECT obj FROM BanEntity obj WHERE obj.userEntity = :user AND obj.endsAt > :now", BanEntity.class);
+		TypedQuery<BanEntity> query = entityManager.createQuery("SELECT obj FROM BanEntity obj WHERE obj.userEntity = :user AND (obj.endsAt is null OR obj.endsAt > :now)", BanEntity.class);
 		query.setParameter("user", userEntity);
 		query.setParameter("now", LocalDateTime.now());
 
@@ -30,7 +30,7 @@ public class BanDAO extends BaseDAO<BanEntity> {
 	}
 
 	public BanEntity findByHardwareHash(String hardwareHash) {
-		TypedQuery<BanEntity> query = entityManager.createQuery("SELECT obj FROM BanEntity obj WHERE obj.hwid = :hwid AND obj.endsAt > :now", BanEntity.class);
+		TypedQuery<BanEntity> query = entityManager.createQuery("SELECT obj FROM BanEntity obj WHERE obj.hwid = :hwid AND (obj.endsAt is null OR obj.endsAt > :now)", BanEntity.class);
 		query.setParameter("hwid", hardwareHash);
 		query.setParameter("now", LocalDateTime.now());
 
@@ -40,7 +40,7 @@ public class BanDAO extends BaseDAO<BanEntity> {
 	}
 
 	public BanEntity findByIpAddress(String ipAddress) {
-		TypedQuery<BanEntity> query = entityManager.createQuery("SELECT obj FROM BanEntity obj WHERE obj.ip = :ip AND obj.endsAt > :now", BanEntity.class);
+		TypedQuery<BanEntity> query = entityManager.createQuery("SELECT obj FROM BanEntity obj WHERE obj.ip = :ip AND (obj.endsAt is null OR obj.endsAt > :now)", BanEntity.class);
 		query.setParameter("ip", ipAddress);
 		query.setParameter("now", LocalDateTime.now());
 
