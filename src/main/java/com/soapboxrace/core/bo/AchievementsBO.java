@@ -1,10 +1,5 @@
 package com.soapboxrace.core.bo;
 
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import com.soapboxrace.core.bo.util.TimeConverter;
 import com.soapboxrace.core.dao.*;
 import com.soapboxrace.core.jpa.*;
@@ -15,11 +10,12 @@ import com.soapboxrace.jaxb.xmpp.AchievementProgress;
 import com.soapboxrace.jaxb.xmpp.AchievementsAwarded;
 import com.soapboxrace.jaxb.xmpp.XMPP_ResponseTypeAchievementsAwarded;
 
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -951,7 +947,7 @@ public class AchievementsBO
 
                 if (productId.contains("|"))
                 {
-                    productId = productId.substring(0, productId.indexOf('|') - 1);
+                    productId = productId.substring(0, productId.indexOf('|'));
                 }
 
                 final ProductEntity productEntity = productDAO.findByProductId(productId);
