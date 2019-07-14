@@ -411,6 +411,8 @@ public class AchievementsBO
                         product = productDAO.getRandomDrop();
                     } while (products.contains(product));
 
+                    inventoryBO.addDroppedItem(product, persona);
+
                     products.add(product);
                     CommerceItemTrans item = new CommerceItemTrans();
                     item.setHash(product.getHash());
@@ -678,6 +680,8 @@ public class AchievementsBO
                         {
                             product = productsToUse.get(new Random().nextInt(productsToUse.size()));
                         } while (products.contains(product));
+
+                        inventoryBO.addDroppedItem(product, persona);
 
                         products.add(product);
                         CommerceItemTrans item = new CommerceItemTrans();
