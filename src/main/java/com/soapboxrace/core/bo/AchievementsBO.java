@@ -411,7 +411,11 @@ public class AchievementsBO
                         product = productDAO.getRandomDrop();
                     } while (products.contains(product));
 
-                    inventoryBO.addDroppedItem(product, persona);
+                    if (product.getProductType().equals("PRESETCAR")) {
+                        basketBO.addCar(product.getProductId(), persona);
+                    } else {
+                        inventoryBO.addDroppedItem(product, persona);
+                    }
 
                     products.add(product);
                     CommerceItemTrans item = new CommerceItemTrans();
