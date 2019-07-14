@@ -207,7 +207,7 @@ public class LobbyBO {
 		LobbyEntity lobbyEntity = lobbyDao.findById(lobbyInviteId);
 		int eventId = lobbyEntity.getEvent().getId();
 
-		if (lobbyEntity.getPersonaId().equals(personaId)) {
+		if (lobbyEntity.getPersonaId().equals(personaId) && !lobbyEntity.getIsPrivate()) {
 			PersonaEntity personaEntity = personaDao.findById(personaId);
 			sendAnnouncement(personaEntity, lobbyEntity.getEvent());
 		}
