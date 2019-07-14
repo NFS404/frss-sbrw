@@ -942,6 +942,9 @@ public class AchievementsBO
                 int index = new Random().nextInt(parts.length);
                 String[] parts2 = rewardEntityValue.split(Pattern.quote("|"));
                 int amount = parts2.length == 2 ? Integer.parseInt(parts2[1]) : 1;
+                if (amount > 5) {
+                    amount = 5;
+                }
 
                 String productId = parts[index];
 
@@ -951,17 +954,16 @@ public class AchievementsBO
                 }
 
                 final ProductEntity productEntity = productDAO.findByProductId(productId);
-                productEntity.setUseCount(amount);
 
-                inventoryBO.addDroppedItem(productEntity, persona);
-
-                commerceItems.add(new CommerceItemTrans()
-                {
-                    {
-                        setTitle(productEntity.getProductTitle() + " x" + amount);
-                        setHash(productEntity.getHash());
-                    }
-                });
+                for (int i = 0; i < amount; i++) {
+                    inventoryBO.addDroppedItem(productEntity, persona);
+                    commerceItems.add(new CommerceItemTrans() {
+                        {
+                            setTitle(productEntity.getProductTitle());
+                            setHash(productEntity.getHash());
+                        }
+                    });
+                }
             }
         }
 
