@@ -41,7 +41,7 @@ public class CarBO
         carBrandMap.put("CAPRI", "FORD");
         carBrandMap.put("CARRERA", "PORSCHE");
         carBrandMap.put("CATERHAM", "CATERHAM");
-        carBrandMap.put("CAYMAN", "PROSCHE");
+        carBrandMap.put("CAYMAN", "PORSCHE");
         carBrandMap.put("CCX", "KOENIGSEGG");
         carBrandMap.put("CCXR", "KOENIGSEGG");
         carBrandMap.put("CHALLENGER", "DODGE");
