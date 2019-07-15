@@ -49,8 +49,8 @@ public class CarBO
         carBrandMap.put("CHEVELLE", "CHEVROLET");
         carBrandMap.put("CLIO", "RENAULTSPORT");
         carBrandMap.put("COBALT", "CHEVROLET");
-        carBrandMap.put("COBRA", "CHEVROLET");
-        carBrandMap.put("COBRADAYTONA", "CHEVROLET");
+        carBrandMap.put("COBRA", "SHELBY");
+        carBrandMap.put("COBRADAYTONA", "SHELBY");
         carBrandMap.put("CONTINENTAL", "BENTLEY");
         carBrandMap.put("COROLLA", "TOYOTA");
         carBrandMap.put("CORVETTE", "CHEVROLET");
