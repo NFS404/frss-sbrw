@@ -12,7 +12,17 @@ import com.soapboxrace.core.xmpp.XmppChat;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Stateless
 public class AdminBO {
@@ -30,6 +40,9 @@ public class AdminBO {
 
 	@EJB
 	private OpenFireSoapBoxCli openFireSoapBoxCli;
+
+	@EJB
+	private ParameterBO parameterBO;
 
 	public void sendCommand(Long personaId, Long abuserPersonaId, String command)
 	{
@@ -83,12 +96,42 @@ public class AdminBO {
 		banEntity.setIp(userEntity.getIpAddress());
 		banDAO.insert(banEntity);
 		sendKick(userEntity.getId(), personaEntity.getPersonaId());
+		banWebhook(banEntity, personaEntity);
 	}
 
 	private void sendKick(Long userId, Long personaId)
 	{
 		openFireSoapBoxCli.send("<NewsArticleTrans><ExpiryTime><", personaId);
 		tokenSessionBo.deleteByUserId(userId);
+	}
+
+	private void banWebhook(BanEntity banEntity, PersonaEntity personaEntity) {
+		if (parameterBO.getStrParam("BAN_WEBHOOK") == null) {
+			return;
+		}
+		Map<String, Object> field1 = new HashMap<>();
+		field1.put("name", "Player");
+		field1.put("value", personaEntity.getName());
+		field1.put("inline", true);
+
+		Map<String, Object> field2 = new HashMap<>();
+		field2.put("name", "Reason");
+		field2.put("value", banEntity.getReason());
+		field1.put("inline", true);
+
+		Map<String, Object> embed = new HashMap<>();
+		embed.put("title", ":hammer: Player banned");
+		embed.put("color", 0xff0000);
+		ZonedDateTime zonedDateTime = banEntity.getStarted().atZone(ZoneId.systemDefault());
+		embed.put("timestamp", zonedDateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+		embed.put("fields", Arrays.asList(field1, field2));
+
+		Map<String, Object> map = new HashMap<>();
+		map.put("embeds", Collections.singletonList(embed));
+		ClientBuilder.newClient()
+				.target(parameterBO.getStrParam("BAN_WEBHOOK"))
+				.request(MediaType.APPLICATION_JSON_TYPE)
+				.post(Entity.json(map));
 	}
 
 	private static class CommandInfo
