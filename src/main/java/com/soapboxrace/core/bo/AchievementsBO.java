@@ -60,6 +60,9 @@ public class AchievementsBO
     @EJB
     private OpenFireSoapBoxCli openFireSoapBoxCli;
 
+    @EJB
+    private CarClassesDAO carClassesDAO;
+
     public AchievementsPacket loadall(Long personaId)
     {
         PersonaEntity personaEntity = personaDAO.findById(personaId);
@@ -395,9 +398,13 @@ public class AchievementsBO
 
             if (rewardEntityValue.equalsIgnoreCase("CarPrizePack"))
             {
-                ProductEntity randomCar = productDAO.getRandomDrop("NFSW_NA_EP_PRESET_RIDES_ALL_Category");
+                ProductEntity randomCar = productDAO.getRandomDrop("PRESETCAR");
+                CarSlotEntity carSlot = basketBO.addCar(randomCar.getProductId(), persona);
 
-                basketBO.addCar(randomCar.getProductId(), persona);
+                CommerceItemTrans item = new CommerceItemTrans();
+                item.setHash(randomCar.getHash());
+                item.setTitle(getCarProductTitle(carSlot));
+                commerceItems.add(item);
             } else if (rewardEntityValue.equalsIgnoreCase("CardPack"))
             {
                 List<ProductEntity> products = new ArrayList<>();
@@ -411,8 +418,11 @@ public class AchievementsBO
                         product = productDAO.getRandomDrop();
                     } while (products.contains(product));
 
+                    String title = product.getProductTitle();
+
                     if (product.getProductType().equals("PRESETCAR")) {
-                        basketBO.addCar(product.getProductId(), persona);
+                        CarSlotEntity carSlotEntity = basketBO.addCar(product.getProductId(), persona);
+                        title = getCarProductTitle(carSlotEntity);
                     } else {
                         inventoryBO.addDroppedItem(product, persona);
                     }
@@ -420,7 +430,7 @@ public class AchievementsBO
                     products.add(product);
                     CommerceItemTrans item = new CommerceItemTrans();
                     item.setHash(product.getHash());
-                    item.setTitle(product.getProductTitle());
+                    item.setTitle(title);
                     commerceItems.add(item);
                 }
             } else if (rewardEntityValue.startsWith("Car"))
@@ -430,12 +440,12 @@ public class AchievementsBO
                 if (parts.length == 2)
                 {
                     String carId = parts[1];
-                    basketBO.addCar(carId, persona);
+                    CarSlotEntity carSlot = basketBO.addCar(carId, persona);
                     ProductEntity productEntity = productDAO.findByProductId(carId);
                     commerceItems.add(new CommerceItemTrans()
                     {
                         {
-                            setTitle(productEntity.getProductTitle());
+                            setTitle(getCarProductTitle(carSlot));
                             setHash(productEntity.getHash());
                         }
                     });
@@ -992,6 +1002,11 @@ public class AchievementsBO
         achievementRewards.setPurchasedCars(new ArrayOfOwnedCarTrans());
 
         return achievementRewards;
+    }
+
+    private String getCarProductTitle(CarSlotEntity carSlot) {
+        CarClassesEntity carClass = carClassesDAO.findByHash(carSlot.getOwnedCar().getCustomCar().getPhysicsProfileHash());
+        return carClass != null ? carClass.getFullName() : "UNKNOWN";
     }
 
     private PersonaAchievementEntity createPersonaAchievement(PersonaEntity personaEntity, AchievementDefinitionEntity achievement)
