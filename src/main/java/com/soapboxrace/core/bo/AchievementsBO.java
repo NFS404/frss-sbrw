@@ -949,7 +949,7 @@ public class AchievementsBO
 
                 CommerceItemTrans item = new CommerceItemTrans();
                 item.setHash(-429893590);
-                item.setTitle("GM_CATALOG_00000190," + cash);
+                item.setTitle(String.format(Locale.US,"%,d CASH", cash));
 
                 commerceItems.add(item);
                 persona.setCash(persona.getCash() + cash);
