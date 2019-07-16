@@ -24,6 +24,18 @@ import java.util.stream.Collectors;
 @Stateless
 public class AchievementsBO
 {
+    private static final Map<String, Integer> packCashRewards = new HashMap<>();
+    private static final Map<String, String> packPartTypes = new HashMap<>();
+    static {
+        packCashRewards.put("platinum", 100000);
+        packCashRewards.put("gold", 50000);
+        packCashRewards.put("silver", 25000);
+        packCashRewards.put("mystery", 10000);
+        packPartTypes.put("platinum", "ULTRA");
+        packPartTypes.put("gold", "PRO");
+        packPartTypes.put("silver", "RACE");
+    }
+
     @EJB
     private BasketBO basketBO;
 
@@ -409,29 +421,78 @@ public class AchievementsBO
             {
                 List<ProductEntity> products = new ArrayList<>();
 
-                for (int i = 0; i < 5; i++)
+                Random random = new Random();
+                int partCount;
+                if (rank.getRewardVisualStyle().equals("mystery")) {
+                    double d = random.nextDouble();
+                    partCount = (int) (d*d*d*d*5);
+                } else {
+                    double d = random.nextDouble();
+                    partCount = (int) (d*d*d*4 + 1);
+                }
+
+                String partType = packPartTypes.get(rank.getRewardVisualStyle());
+
+                for (int i = 0; i < partCount; i++)
+                {
+                    ProductEntity product;
+                    boolean correctType;
+
+                    do
+                    {
+                        product = productDAO.getRandomDrop("PERFORMANCEPART");
+                        correctType = partType == null || product.getProductTitle().startsWith(partType);
+                    } while (products.contains(product) || !correctType);
+
+                    inventoryBO.addDroppedItem(product, persona);
+
+                    products.add(product);
+                    CommerceItemTrans item = new CommerceItemTrans();
+                    item.setHash(product.getHash());
+                    item.setTitle(product.getProductTitle());
+                    commerceItems.add(item);
+                }
+
+                if (partCount < 5 && random.nextFloat() < 0.25) {
+                    Integer cash = packCashRewards.get(rank.getRewardVisualStyle());
+                    if (cash == null) {
+                        cash = 10000;
+                    }
+
+                    CommerceItemTrans item = new CommerceItemTrans();
+                    item.setHash(-429893590);
+                    item.setTitle(String.format(Locale.US,"%,d CASH", cash));
+
+                    commerceItems.add(item);
+                    persona.setCash(persona.getCash() + cash);
+                    personaDAO.update(persona);
+
+                    partCount++;
+                }
+
+                for (int i = 0; i < 5-partCount; i++)
                 {
                     ProductEntity product;
 
                     do
                     {
-                        product = productDAO.getRandomDrop();
+                        product = productDAO.getRandomDrop("POWERUP");
                     } while (products.contains(product));
 
-                    String title = product.getProductTitle();
-
-                    if (product.getProductType().equals("PRESETCAR")) {
-                        CarSlotEntity carSlotEntity = basketBO.addCar(product.getProductId(), persona);
-                        title = getCarProductTitle(carSlotEntity);
-                    } else {
-                        inventoryBO.addDroppedItem(product, persona);
-                    }
+                    inventoryBO.addDroppedItem(product, persona);
 
                     products.add(product);
                     CommerceItemTrans item = new CommerceItemTrans();
                     item.setHash(product.getHash());
-                    item.setTitle(title);
+                    item.setTitle(product.getProductTitle());
                     commerceItems.add(item);
+                }
+
+                for (int i = 4; i > 1; i--) {
+                    int j = random.nextInt(i);
+                    CommerceItemTrans temp = commerceItems.get(i);
+                    commerceItems.set(i, commerceItems.get(j));
+                    commerceItems.set(j, temp);
                 }
             } else if (rewardEntityValue.startsWith("Car"))
             {
