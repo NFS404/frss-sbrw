@@ -425,10 +425,10 @@ public class AchievementsBO
                 int partCount;
                 if (rank.getRewardVisualStyle().equals("mystery")) {
                     double d = random.nextDouble();
-                    partCount = (int) (d*d*d*d*5);
+                    partCount = (int) (d*d*d*d*d*5);
                 } else {
                     double d = random.nextDouble();
-                    partCount = (int) (d*d*d*4 + 1);
+                    partCount = (int) (d*d*d*d*4 + 1);
                 }
 
                 String partType = packPartTypes.get(rank.getRewardVisualStyle());
