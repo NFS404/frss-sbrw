@@ -1,6 +1,7 @@
 package com.soapboxrace.core.api;
 
-import java.util.GregorianCalendar;
+import com.soapboxrace.core.api.util.Secured;
+import com.soapboxrace.core.api.util.VersionUtil;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -41,7 +42,7 @@ public class SystemInfo {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		systemInfo.setVersion("1599");
+		systemInfo.setVersion(VersionUtil.getVersionHash());
 		return systemInfo;
 	}
 }

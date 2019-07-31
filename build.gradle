@@ -80,3 +80,14 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
+ext.genResourcesDir = "$buildDir/gen-resources"
+
+task writeGitHash {
+    ext.versionFile = file("$genResourcesDir/version.txt")
+    outputs.file(versionFile)
+    doLast {
+        versionFile.text = "git rev-parse --short HEAD".execute().text
+    }
+}
+
+sourceSets.main.output.dir genResourcesDir, builtBy: writeGitHash
