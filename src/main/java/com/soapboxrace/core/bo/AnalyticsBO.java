@@ -14,6 +14,7 @@ import javax.ws.rs.client.Entity;
 public class AnalyticsBO {
     private String analyticsId;
     private Boolean analyticsEnabled;
+    private String address;
 
     @EJB
     private ParameterBO parameterBO;
@@ -22,42 +23,66 @@ public class AnalyticsBO {
     public void init() {
         analyticsId = parameterBO.getStrParam("ANALYTICS_ID");
         analyticsEnabled = analyticsId != null;
+        address = parameterBO.getStrParam("SERVER_ADDRESS");
+        if (!address.endsWith("/")) {
+            address += "/";
+        }
     }
 
-    private String authActionHit(String action, UserEntity user) {
-        StringBuilder body = new StringBuilder("v=1&t=event&ec=Auth");
-        body.append("&ea=");
-        body.append(action);
-        body.append("&tid=");
-        body.append(analyticsId);
-        body.append("&uid=");
-        body.append(user.getId());
-        body.append("&uip=");
-        body.append(user.getIpAddress());
-        body.append("&cd1=");
-        body.append(user.getUserAgent());
-        return body.toString();
+    public void sendEvent(String category, String action, UserEntity user) {
+        sendEvent(category, action, null, user);
+    }
+
+    public void sendEvent(String category, String action, String label, UserEntity user) {
+        if (!analyticsEnabled) return;
+
+        String body = "v=1&t=event&ec=" +
+                category +
+                "&ea=" +
+                action +
+                "&tid=" +
+                analyticsId +
+                "&uid=" +
+                user.getId() +
+                "&uip=" +
+                user.getIpAddress() +
+                "&cd1=" +
+                user.getUserAgent();
+        if (label != null) {
+            body += "&el=" + label;
+        }
+        ClientBuilder.newClient()
+                .target("https://www.google-analytics.com")
+                .path("/collect")
+                .request()
+                .post(Entity.text(body));
+    }
+
+    public void sendPageView(UserEntity user) {
+        if (!analyticsEnabled) return;
+
+        String body = "v=1&t=pageview&dl=" +
+                address +
+                "&tid=" +
+                analyticsId +
+                "&uid=" +
+                user.getId() +
+                "&uip=" +
+                user.getIpAddress() +
+                "&cd1=" +
+                user.getUserAgent();
+        ClientBuilder.newClient()
+                .target("https://www.google-analytics.com")
+                .path("/collect")
+                .request()
+                .post(Entity.text(body));
     }
 
     public void trackUserLogin(UserEntity user) {
-        if (!analyticsEnabled) return;
-
-        String body = authActionHit("Login", user);
-        ClientBuilder.newClient()
-                .target("https://www.google-analytics.com")
-                .path("/collect")
-                .request()
-                .post(Entity.text(body));
+        sendPageView(user);
     }
 
     public void trackUserRegister(UserEntity user) {
-        if (!analyticsEnabled) return;
-
-        String body = authActionHit("Register", user);
-        ClientBuilder.newClient()
-                .target("https://www.google-analytics.com")
-                .path("/collect")
-                .request()
-                .post(Entity.text(body));
+        sendPageView(user);
     }
 }

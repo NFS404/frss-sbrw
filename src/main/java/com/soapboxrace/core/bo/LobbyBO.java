@@ -52,6 +52,9 @@ public class LobbyBO {
 	@EJB
 	private OpenFireSoapBoxCli openFireSoapBoxCli;
 
+	@EJB
+	private AnalyticsBO analyticsBO;
+
 	public void joinFastLobby(Long personaId, int carClassHash) {
 		List<LobbyEntity> lobbys = lobbyDao.findAllOpen(carClassHash);
 		
@@ -66,6 +69,7 @@ public class LobbyBO {
 	public void joinQueueEvent(Long personaId, int eventId) {
 		PersonaEntity personaEntity = personaDao.findById(personaId);
 		EventEntity eventEntity = eventDao.findById(eventId);
+		analyticsBO.sendEvent("Race", "Join Lobby", Integer.toString(eventId), personaEntity.getUser());
 		List<LobbyEntity> lobbys = lobbyDao.findByEventStarted(eventId);
 		if (lobbys.size() == 0) {
 			createLobby(personaEntity, eventId, eventEntity.getCarClassHash(), false);

@@ -1,42 +1,15 @@
 package com.soapboxrace.core.bo;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.soapboxrace.core.bo.util.CommerceOp;
+import com.soapboxrace.core.bo.util.OwnedCarConverter;
+import com.soapboxrace.core.dao.*;
+import com.soapboxrace.core.jpa.*;
+import com.soapboxrace.jaxb.http.*;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-
-import com.soapboxrace.core.bo.util.CommerceOp;
-import com.soapboxrace.core.bo.util.OwnedCarConverter;
-import com.soapboxrace.core.dao.CarClassesDAO;
-import com.soapboxrace.core.dao.CarSlotDAO;
-import com.soapboxrace.core.dao.InventoryDAO;
-import com.soapboxrace.core.dao.InventoryItemDAO;
-import com.soapboxrace.core.dao.PaintDAO;
-import com.soapboxrace.core.dao.PerformancePartDAO;
-import com.soapboxrace.core.dao.PersonaDAO;
-import com.soapboxrace.core.dao.ProductDAO;
-import com.soapboxrace.core.dao.SkillModPartDAO;
-import com.soapboxrace.core.dao.VinylDAO;
-import com.soapboxrace.core.dao.VinylProductDAO;
-import com.soapboxrace.core.dao.VisualPartDAO;
-import com.soapboxrace.core.jpa.CarClassesEntity;
-import com.soapboxrace.core.jpa.CarSlotEntity;
-import com.soapboxrace.core.jpa.CustomCarEntity;
-import com.soapboxrace.core.jpa.InventoryItemEntity;
-import com.soapboxrace.core.jpa.PerformancePartEntity;
-import com.soapboxrace.core.jpa.PersonaEntity;
-import com.soapboxrace.core.jpa.ProductEntity;
-import com.soapboxrace.core.jpa.VinylProductEntity;
-import com.soapboxrace.jaxb.http.BasketItemTrans;
-import com.soapboxrace.jaxb.http.CommerceSessionTrans;
-import com.soapboxrace.jaxb.http.CustomCarTrans;
-import com.soapboxrace.jaxb.http.CustomPaintTrans;
-import com.soapboxrace.jaxb.http.EntitlementItemTrans;
-import com.soapboxrace.jaxb.http.OwnedCarTrans;
-import com.soapboxrace.jaxb.http.PerformancePartTrans;
-import com.soapboxrace.jaxb.http.SkillModPartTrans;
-import com.soapboxrace.jaxb.http.VisualPartTrans;
+import java.util.ArrayList;
+import java.util.List;
 
 @Stateless
 public class CommerceBO {
@@ -173,9 +146,9 @@ public class CommerceBO {
 			accel = productEntity.getAccel() + accel;
 			handling = productEntity.getHandling() + handling;
 		}
-		float tt = (float) (topSpeed * 0.01);
-		float ta = (float) (accel * 0.01);
-		float th = (float) (handling * 0.01);
+		float tt = ((float) topSpeed) * 0.01f;
+		float ta = ((float) accel) * 0.01f;
+		float th = ((float) handling) * 0.01f;
 		float totalChanges = 1 / (((tt + ta + th) * 0.666666666666666f) + 1f);
 		tt = tt * totalChanges;
 		ta = ta * totalChanges;

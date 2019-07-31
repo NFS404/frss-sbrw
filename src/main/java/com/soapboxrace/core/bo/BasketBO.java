@@ -103,7 +103,7 @@ public class BasketBO
         ProductEntity product = productDao.findByProductId(productId);
         if (personaEntity.getCash() < product.getUserPrice(personaEntity.getUser()))
         {
-            return CommerceResultStatus.FAIL_INSUFFICIENT_FUNDS;
+            return CommerceResultStatus.FAIL_LOCKED_PRODUCT_NOT_ACCESSIBLE_TO_THIS_USER;
         }
         if (parameterBO.getBoolParam("ENABLE_ECONOMY"))
         {

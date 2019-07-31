@@ -8,8 +8,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-
-import com.soapboxrace.core.api.util.Secured;
+import java.util.GregorianCalendar;
 
 @Path("/systeminfo")
 public class SystemInfo {
@@ -31,8 +30,8 @@ public class SystemInfo {
 		systemInfo.setNucleusNamespace("sbrw-live");
 		systemInfo.setNucleusNamespaceWeb("sbr_web");
 		systemInfo.setPersonaCacheTimeout(900);
-		systemInfo.setPortalDomain("soapboxrace.world");
-		systemInfo.setPortalStoreFailurePage("soapboxrace.world/fail");
+		systemInfo.setPortalDomain("static.nextdata.eu");
+		systemInfo.setPortalStoreFailurePage("static.nextdata.eu/fail");
 		systemInfo.setPortalTimeOut("6000");
 		systemInfo.setShardName("CORE");
 		GregorianCalendar c = new GregorianCalendar();
