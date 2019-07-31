@@ -46,11 +46,18 @@ public class AdminBO {
 
 	public void sendCommand(Long personaId, Long abuserPersonaId, String command)
 	{
-		CommandInfo commandInfo = CommandInfo.parse(command);
-		PersonaEntity personaEntity = personaDao.findById(abuserPersonaId);
+	}
 
-		if (personaEntity == null)
+	public void sendChatCommand(Long personaId, String command)
+	{
+		CommandInfo commandInfo = CommandInfo.parse(command, true);
+		if (commandInfo == null) return;
+
+		PersonaEntity personaEntity = personaDao.findByName(commandInfo.personaName);
+		if (personaEntity == null) {
+			openFireSoapBoxCli.send(XmppChat.createSystemMessage("Cannot find the user!"), personaId);
 			return;
+		}
 
 		switch (commandInfo.action)
 		{
@@ -139,25 +146,26 @@ public class AdminBO {
 		public CommandInfo.CmdAction action;
 		public String reason;
 		public LocalDateTime timeEnd;
+		public String personaName;
 
 		public enum CmdAction
 		{
 			KICK,
 			BAN,
-			ALERT,
-			UNBAN,
-			UNKNOWN
+			UNBAN
 		}
 
-		public static CommandInfo parse(String cmd)
+		public static CommandInfo parse(String cmd, boolean withName)
 		{
-			cmd = cmd.replaceFirst("/", "");
+			cmd = cmd.replaceFirst("/", "").trim();
 
-			String[] split = cmd.split(" ");
+			String[] splits = cmd.split(" ");
+			if (splits.length == 0) return null;
+
 			CommandInfo.CmdAction action;
 			CommandInfo info = new CommandInfo();
 
-			switch (split[0].toLowerCase().trim())
+			switch (splits[0].toLowerCase())
 			{
 				case "ban":
 					action = CmdAction.BAN;
@@ -169,11 +177,11 @@ public class AdminBO {
 					action = CmdAction.UNBAN;
 					break;
 				default:
-					action = CmdAction.UNKNOWN;
-					break;
+					return null;
 			}
 
 			info.action = action;
+			info.personaName = splits[1];
 
 			switch (action)
 			{
@@ -182,21 +190,21 @@ public class AdminBO {
 					LocalDateTime endTime;
 					String reason = null;
 
-					if (split.length >= 2)
+					if (splits.length > 2)
 					{
-						long givenTime = MiscUtils.lengthToMiliseconds(split[1]);
+						long givenTime = MiscUtils.lengthToMiliseconds(splits[2]);
 						if (givenTime != 0)
 						{
 							endTime = LocalDateTime.now().plusSeconds(givenTime / 1000);
 							info.timeEnd = endTime;
 
-							if (split.length > 2)
+							if (splits.length > 3)
 							{
-								reason = MiscUtils.argsToString(split, 2, split.length);
+								reason = MiscUtils.argsToString(splits, 3, splits.length);
 							}
 						} else
 						{
-							reason = MiscUtils.argsToString(split, 1, split.length);
+							reason = MiscUtils.argsToString(splits, 2, splits.length);
 						}
 					}
 
