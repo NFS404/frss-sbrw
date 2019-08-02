@@ -5,6 +5,8 @@ import com.soapboxrace.core.bo.util.OwnedCarConverter;
 import com.soapboxrace.core.dao.*;
 import com.soapboxrace.core.jpa.*;
 import com.soapboxrace.jaxb.http.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -13,6 +15,8 @@ import java.util.List;
 
 @Stateless
 public class CommerceBO {
+	private final Logger LOGGER = LoggerFactory.getLogger(CommerceBO.class);
+
 	@EJB
 	private PersonaBO personaBO;
 
@@ -142,9 +146,25 @@ public class CommerceBO {
 		for (PerformancePartEntity performancePartEntity : performanceParts) {
 			int perfHash = performancePartEntity.getPerformancePartAttribHash();
 			ProductEntity productEntity = productDAO.findByHash(perfHash);
-			topSpeed = productEntity.getTopSpeed() + topSpeed;
-			accel = productEntity.getAccel() + accel;
-			handling = productEntity.getHandling() + handling;
+			if (productEntity == null) {
+				LOGGER.warn("Product {} doesn't exist (cc.id={})", perfHash, customCarEntity.getId());
+				continue;
+			}
+			if (productEntity.getTopSpeed() != null) {
+				topSpeed += productEntity.getTopSpeed();
+			} else {
+				LOGGER.warn("Product {} has null topSpeed (cc.id={})", perfHash, customCarEntity.getId());
+			}
+			if (productEntity.getTopSpeed() != null) {
+				accel += productEntity.getAccel();
+			} else {
+				LOGGER.warn("Product {} has null accel (cc.id={})", perfHash, customCarEntity.getId());
+			}
+			if (productEntity.getTopSpeed() != null) {
+				handling += productEntity.getHandling();
+			} else {
+				LOGGER.warn("Product {} has null handling (cc.id={})", perfHash, customCarEntity.getId());
+			}
 		}
 		float tt = ((float) topSpeed) * 0.01f;
 		float ta = ((float) accel) * 0.01f;
@@ -161,23 +181,17 @@ public class CommerceBO {
 		Float finalTopSpeed = (finalConstant * carClassesEntity.getTsStock().floatValue()) + finalTopSpeed1 + finalTopSpeed2
 				+ finalTopSpeed3;
 
-		System.out.println(finalTopSpeed.intValue());
-
 		Float finalAccel1 = carClassesEntity.getAcVar1().floatValue() * th;
 		Float finalAccel2 = carClassesEntity.getAcVar2().floatValue() * ta;
 		Float finalAccel3 = carClassesEntity.getAcVar3().floatValue() * tt;
 		Float finalAccel = (finalConstant * carClassesEntity.getAcStock().floatValue()) + finalAccel1 + finalAccel2
 				+ finalAccel3;
 
-		System.out.println(finalAccel.intValue());
-
 		Float finalHandling1 = carClassesEntity.getHaVar1().floatValue() * th;
 		Float finalHandling2 = carClassesEntity.getHaVar2().floatValue() * ta;
 		Float finalHandling3 = carClassesEntity.getHaVar3().floatValue() * tt;
 		Float finalHandling = (finalConstant * carClassesEntity.getHaStock().floatValue()) + finalHandling1 + finalHandling2
 				+ finalHandling3;
-
-		System.out.println(finalHandling.intValue());
 
 		Float finalClass = (finalTopSpeed.intValue() + finalAccel.intValue() + finalHandling.intValue()) / 3f;
 		System.out.println(finalClass.intValue());
