@@ -86,7 +86,7 @@ task writeGitHash {
     ext.versionFile = file("$genResourcesDir/version.txt")
     outputs.file(versionFile)
     doLast {
-        versionFile.text = "git rev-parse --short HEAD".execute().text
+        versionFile.text = "git rev-parse --short HEAD".execute().text.trim()
     }
 }
 
