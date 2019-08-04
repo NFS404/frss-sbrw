@@ -245,12 +245,12 @@ public class BasketBO
 
     public int getPersonaCarCount(Long personaId)
     {
-        return getPersonasCar(personaId).size();
+        return carSlotDAO.findByPersonaId(personaId).size();
     }
 
     public List<CarSlotEntity> getPersonasCar(Long personaId)
     {
-        List<CarSlotEntity> findByPersonaId = carSlotDAO.findByPersonaId(personaId);
+        List<CarSlotEntity> findByPersonaId = carSlotDAO.findByPersonaIdEager(personaId);
         for (CarSlotEntity carSlotEntity : findByPersonaId)
         {
             CustomCarEntity customCar = carSlotEntity.getOwnedCar().getCustomCar();
@@ -303,7 +303,7 @@ public class BasketBO
             curCarIndex = 0;
         } else
         {
-            List<CarSlotEntity> personasCar = personaBo.getPersonasCar(personaId);
+            List<CarSlotEntity> personasCar = carSlotDAO.findByPersonaId(personaId);
             int curCarIndexTmp = curCarIndex;
             for (int i = 0; i < curCarIndexTmp; i++)
             {

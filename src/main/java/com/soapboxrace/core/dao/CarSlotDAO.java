@@ -1,16 +1,15 @@
 package com.soapboxrace.core.dao;
 
-import java.util.List;
+import com.soapboxrace.core.dao.util.BaseDAO;
+import com.soapboxrace.core.jpa.CarSlotEntity;
+import com.soapboxrace.core.jpa.PersonaEntity;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-
-import com.soapboxrace.core.dao.util.BaseDAO;
-import com.soapboxrace.core.jpa.CarSlotEntity;
-import com.soapboxrace.core.jpa.PersonaEntity;
+import java.util.List;
 
 @Stateless
 public class CarSlotDAO extends BaseDAO<CarSlotEntity> {
@@ -29,6 +28,15 @@ public class CarSlotDAO extends BaseDAO<CarSlotEntity> {
 		personaEntity.setPersonaId(personaId);
 
 		TypedQuery<CarSlotEntity> query = entityManager.createNamedQuery("CarSlotEntity.findByPersonaId", CarSlotEntity.class);
+		query.setParameter("persona", personaEntity);
+		return query.getResultList();
+	}
+
+	public List<CarSlotEntity> findByPersonaIdEager(Long personaId) {
+		PersonaEntity personaEntity = new PersonaEntity();
+		personaEntity.setPersonaId(personaId);
+
+		TypedQuery<CarSlotEntity> query = entityManager.createNamedQuery("CarSlotEntity.findByPersonaIdEager", CarSlotEntity.class);
 		query.setParameter("persona", personaEntity);
 		return query.getResultList();
 	}
