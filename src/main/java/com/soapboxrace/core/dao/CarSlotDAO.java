@@ -24,21 +24,30 @@ public class CarSlotDAO extends BaseDAO<CarSlotEntity> {
 	}
 
 	public List<CarSlotEntity> findByPersonaId(Long personaId) {
-		PersonaEntity personaEntity = new PersonaEntity();
-		personaEntity.setPersonaId(personaId);
-
 		TypedQuery<CarSlotEntity> query = entityManager.createNamedQuery("CarSlotEntity.findByPersonaId", CarSlotEntity.class);
-		query.setParameter("persona", personaEntity);
+		query.setParameter("persona", personaId);
 		return query.getResultList();
 	}
 
 	public List<CarSlotEntity> findByPersonaIdEager(Long personaId) {
-		PersonaEntity personaEntity = new PersonaEntity();
-		personaEntity.setPersonaId(personaId);
-
 		TypedQuery<CarSlotEntity> query = entityManager.createNamedQuery("CarSlotEntity.findByPersonaIdEager", CarSlotEntity.class);
-		query.setParameter("persona", personaEntity);
+		query.setParameter("persona", personaId);
 		return query.getResultList();
+	}
+
+	public Integer countByPersonaId(Long personaId) {
+		TypedQuery<Integer> query = entityManager.createNamedQuery("CarSlotEntity.countByPersonaId", Integer.class);
+		query.setParameter("persona", personaId);
+		return query.getSingleResult();
+	}
+
+	public CarSlotEntity getByPersonaIdEager(Long personaId, int index) {
+		TypedQuery<CarSlotEntity> query = entityManager.createNamedQuery("CarSlotEntity.findByPersonaIdEager", CarSlotEntity.class);
+		query.setParameter("persona", personaId);
+		query.setFirstResult(index);
+		query.setMaxResults(1);
+		List<CarSlotEntity> list = query.getResultList();
+		return list.isEmpty() ? null : list.get(0);
 	}
 
 	public void deleteByPersona(PersonaEntity personaEntity) {

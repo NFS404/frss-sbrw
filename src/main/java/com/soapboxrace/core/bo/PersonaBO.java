@@ -98,23 +98,16 @@ public class PersonaBO {
 	}
 
 	public CarSlotEntity getDefaultCarEntity(Long personaId) {
-		PersonaEntity personaEntity = personaDAO.findById(personaId);
-		List<CarSlotEntity> carSlotList = getPersonasCar(personaId);
-		Integer curCarIndex = personaEntity.getCurCarIndex();
-		if (!carSlotList.isEmpty()) {
-			if (curCarIndex >= carSlotList.size()) {
-				curCarIndex = carSlotList.size() - 1;
-				CarSlotEntity ownedCarEntity = carSlotList.get(curCarIndex);
-				changeDefaultCar(personaId, ownedCarEntity.getId());
+		int carSlotCount = carSlotDAO.countByPersonaId(personaId);
+		if (carSlotCount > 0) {
+			PersonaEntity personaEntity = personaDAO.findById(personaId);
+			int curCarIndex = personaEntity.getCurCarIndex();
+			if (curCarIndex >= carSlotCount) {
+				curCarIndex = carSlotCount - 1;
+				personaEntity.setCurCarIndex(curCarIndex);
+				personaDAO.update(personaEntity);
 			}
-			CarSlotEntity carSlotEntity = carSlotList.get(curCarIndex);
-			CustomCarEntity customCar = carSlotEntity.getOwnedCar().getCustomCar();
-			customCar.getPaints().size();
-			customCar.getPerformanceParts().size();
-			customCar.getSkillModParts().size();
-			customCar.getVisualParts().size();
-			customCar.getVinyls().size();
-			return carSlotEntity;
+			return carSlotDAO.getByPersonaIdEager(personaId, curCarIndex);
 		}
 		return null;
 	}

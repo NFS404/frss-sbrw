@@ -5,14 +5,14 @@ import javax.persistence.*;
 @Entity
 @Table(name = "CARSLOT")
 @NamedQueries({ @NamedQuery(name = "CarSlotEntity.findByPersonaId", //
-		query = "SELECT obj FROM CarSlotEntity obj WHERE obj.persona = :persona ORDER by obj.id"), //
+		query = "SELECT obj FROM CarSlotEntity obj WHERE obj.persona.id = :persona ORDER by obj.id"), //
 		@NamedQuery(name = "CarSlotEntity.findByPersonaIdEager", //
 				query = "SELECT obj FROM CarSlotEntity obj " +
 						"INNER JOIN FETCH obj.ownedCar oc " +
 						"INNER JOIN FETCH oc.customCar cc " +
-						"WHERE obj.persona = :persona ORDER by obj.id"), //
+						"WHERE obj.persona.id = :persona ORDER by obj.id"), //
 		@NamedQuery(name = "CarSlotEntity.countByPersonaId", //
-				query = "SELECT COUNT(obj) FROM CarSlotEntity obj WHERE obj.persona = :persona"), //
+				query = "SELECT COUNT(obj) FROM CarSlotEntity obj WHERE obj.persona.id = :persona"), //
 		@NamedQuery(name = "CarSlotEntity.deleteByPersona", //
 				query = "DELETE FROM CarSlotEntity obj WHERE obj.persona = :persona") //
 })

@@ -179,7 +179,8 @@ public class BasketBO
 
     public CommerceResultStatus buyCar(String productId, PersonaEntity personaEntity, String securityToken)
     {
-        if (getPersonaCarCount(personaEntity.getPersonaId()) >= parameterBO.getCarLimit(securityToken))
+        int carCount = carSlotDAO.countByPersonaId(personaEntity.getPersonaId());
+        if (carCount >= parameterBO.getCarLimit(securityToken))
         {
             return CommerceResultStatus.FAIL_INSUFFICIENT_CAR_SLOTS;
         }
@@ -243,11 +244,6 @@ public class BasketBO
         return carSlotEntity;
     }
 
-    public int getPersonaCarCount(Long personaId)
-    {
-        return carSlotDAO.findByPersonaId(personaId).size();
-    }
-
     public List<CarSlotEntity> getPersonasCar(Long personaId)
     {
         List<CarSlotEntity> findByPersonaId = carSlotDAO.findByPersonaIdEager(personaId);
@@ -277,7 +273,7 @@ public class BasketBO
         {
             return false;
         }
-        int personaCarCount = getPersonaCarCount(personaId);
+        int personaCarCount = carSlotDAO.countByPersonaId(personaId);
         if (personaCarCount <= 1)
         {
             return false;
