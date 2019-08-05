@@ -1,12 +1,5 @@
 package com.soapboxrace.core.bo;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-
 import com.soapboxrace.core.bo.util.OwnedCarConverter;
 import com.soapboxrace.core.dao.*;
 import com.soapboxrace.core.jpa.*;
@@ -14,6 +7,12 @@ import com.soapboxrace.jaxb.http.BadgeBundle;
 import com.soapboxrace.jaxb.http.BadgeInput;
 import com.soapboxrace.jaxb.http.BadgePacket;
 import com.soapboxrace.jaxb.http.OwnedCarTrans;
+
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Stateless
 public class PersonaBO {
@@ -99,23 +98,16 @@ public class PersonaBO {
 	}
 
 	public CarSlotEntity getDefaultCarEntity(Long personaId) {
-		PersonaEntity personaEntity = personaDAO.findById(personaId);
-		List<CarSlotEntity> carSlotList = getPersonasCar(personaId);
-		Integer curCarIndex = personaEntity.getCurCarIndex();
-		if (!carSlotList.isEmpty()) {
-			if (curCarIndex >= carSlotList.size()) {
-				curCarIndex = carSlotList.size() - 1;
-				CarSlotEntity ownedCarEntity = carSlotList.get(curCarIndex);
-				changeDefaultCar(personaId, ownedCarEntity.getId());
+		int carSlotCount = carSlotDAO.countByPersonaId(personaId);
+		if (carSlotCount > 0) {
+			PersonaEntity personaEntity = personaDAO.findById(personaId);
+			int curCarIndex = personaEntity.getCurCarIndex();
+			if (curCarIndex >= carSlotCount) {
+				curCarIndex = carSlotCount - 1;
+				personaEntity.setCurCarIndex(curCarIndex);
+				personaDAO.update(personaEntity);
 			}
-			CarSlotEntity carSlotEntity = carSlotList.get(curCarIndex);
-			CustomCarEntity customCar = carSlotEntity.getOwnedCar().getCustomCar();
-			customCar.getPaints().size();
-			customCar.getPerformanceParts().size();
-			customCar.getSkillModParts().size();
-			customCar.getVisualParts().size();
-			customCar.getVinyls().size();
-			return carSlotEntity;
+			return carSlotDAO.getByPersonaIdEager(personaId, curCarIndex);
 		}
 		return null;
 	}
@@ -128,16 +120,12 @@ public class PersonaBO {
 		return OwnedCarConverter.entity2Trans(carSlotEntity.getOwnedCar());
 	}
 
-	public List<CarSlotEntity> getPersonasCar(Long personaId) {
-		return carSlotDAO.findByPersonaId(personaId);
-	}
-
 	public LevelRepEntity getLevelInfoByLevel(Long level) {
 		return levelRepDAO.findByLevel(level);
 	}
 
 	public OwnedCarEntity getCarByOwnedCarId(Long ownedCarId) {
-		OwnedCarEntity ownedCarEntity = ownedCarDAO.findById(ownedCarId);
+		OwnedCarEntity ownedCarEntity = ownedCarDAO.findByIdEager(ownedCarId);
 		CustomCarEntity customCar = ownedCarEntity.getCustomCar();
 		customCar.getPaints().size();
 		customCar.getPerformanceParts().size();
