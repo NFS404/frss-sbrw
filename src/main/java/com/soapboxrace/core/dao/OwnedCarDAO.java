@@ -6,6 +6,7 @@ import com.soapboxrace.core.jpa.OwnedCarEntity;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import java.util.List;
 
 @Stateless
@@ -21,10 +22,13 @@ public class OwnedCarDAO extends BaseDAO<OwnedCarEntity> {
 	}
 
 	public OwnedCarEntity findByIdEager(Long id) {
-		List<OwnedCarEntity> list = entityManager.createQuery("SELECT obj FROM OwnedCarEntity obj " +
-				"INNER JOIN FETCH obj.customCar cc",
+		TypedQuery<OwnedCarEntity> query = entityManager.createQuery("SELECT obj FROM OwnedCarEntity obj " +
+				"INNER JOIN FETCH obj.customCar cc" +
+				"WHERE obj.id = :id",
 				OwnedCarEntity.class
-		).getResultList();
+		);
+		query.setParameter("id", id);
+		List<OwnedCarEntity> list = query.getResultList();
 		return list.isEmpty() ? null : list.get(0);
 	}
 }
