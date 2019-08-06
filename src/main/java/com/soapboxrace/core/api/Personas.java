@@ -38,6 +38,9 @@ public class Personas {
 	@EJB
 	private InventoryBO inventoryBO;
 
+	@EJB
+	private AchievementsBO achievementsBO;
+
 	@POST
 	@Secured
 	@Path("/{personaId}/commerce")
@@ -54,6 +57,7 @@ public class Personas {
 		CommerceOp commerceOp = commerceBO.detectCommerceOperation(commerceSessionTrans, defaultCarEntity);
 		commerceBO.updateEconomy(commerceOp, basketItemTrans, commerceSessionTrans, defaultCarEntity);
 		inventoryBO.updateInventory(commerceOp, basketItemTrans, commerceSessionTrans, defaultCarEntity);
+		achievementsBO.updateFromCommerce(commerceOp, commerceSessionTrans, defaultCarEntity);
 		commerceBO.updateCar(commerceOp, commerceSessionTrans, defaultCarEntity);
 
 		commerceSessionResultTrans.setInvalidBasket(new InvalidBasketTrans());

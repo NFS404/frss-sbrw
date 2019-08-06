@@ -1,5 +1,7 @@
 package com.soapboxrace.core.bo;
 
+import com.soapboxrace.core.bo.util.CommerceOp;
+import com.soapboxrace.core.bo.util.OwnedCarConverter;
 import com.soapboxrace.core.bo.util.TimeConverter;
 import com.soapboxrace.core.dao.*;
 import com.soapboxrace.core.jpa.*;
@@ -1097,5 +1099,77 @@ public class AchievementsBO
         personaAchievementRankDAO.insert(personaRank);
 
         return personaRank;
+    }
+
+    public void updateFromCommerce(CommerceOp commerceOp, CommerceSessionTrans commerceSessionTrans,
+                              CarSlotEntity defaultCarEntity) {
+        OwnedCarTrans ownedCarTrans = OwnedCarConverter.entity2Trans(defaultCarEntity.getOwnedCar());
+        CustomCarTrans customCarTransDB = ownedCarTrans.getCustomCar();
+        CustomCarTrans customCarTrans = commerceSessionTrans.getUpdatedCar().getCustomCar();
+        switch (commerceOp) {
+            case PERFORMANCE:
+                List<PerformancePartTrans> performancePartTransDB = customCarTransDB.getPerformanceParts().getPerformancePartTrans();
+                List<PerformancePartTrans> performancePartTrans = customCarTrans.getPerformanceParts().getPerformancePartTrans();
+                ArrayList<PerformancePartTrans> performancePartTransListTmp = new ArrayList<>(performancePartTrans);
+                performancePartTransListTmp.removeAll(performancePartTransDB);
+                Iterator<PerformancePartTrans> iter = performancePartTransListTmp.iterator();
+                while (iter.hasNext()) {
+                    PerformancePartTrans trans = iter.next();
+                    ProductEntity product = productDAO.findByHash(trans.getPerformancePartAttribHash());
+                    if (product != null && product.getIcon() != null &&
+                            (product.getIcon().startsWith("r1") || product.getIcon().startsWith("r2"))) {
+                        iter.remove();
+                    }
+                }
+
+                if (performancePartTransListTmp.size() > 0) {
+                    AchievementDefinitionEntity achievement = achievementDAO.findByName("achievement_ACH_INSTALL_PERFORMANCEPART");
+                    if (achievement != null) {
+                        update(defaultCarEntity.getPersona(), achievement, (long) performancePartTransListTmp.size());
+                    }
+                }
+                break;
+            case VISUAL:
+                List<VisualPartTrans> visualPartTransDB = customCarTransDB.getVisualParts().getVisualPartTrans();
+                List<VisualPartTrans> visualPartTrans = customCarTrans.getVisualParts().getVisualPartTrans();
+                List<VisualPartTrans> visualPartTransListTmp = new ArrayList<>(visualPartTrans);
+                visualPartTransListTmp.removeAll(visualPartTransDB);
+
+                if (visualPartTransListTmp.size() > 0) {
+                    AchievementDefinitionEntity achievement3 = achievementDAO.findByName("achievement_ACH_INSTALL_AFTERMARKETPART");
+                    if (achievement3 != null) {
+                        update(defaultCarEntity.getPersona(), achievement3, (long) visualPartTransListTmp.size());
+                    }
+                }
+                break;
+            case VINYL:
+                List<CustomVinylTrans> vinylTransDB = customCarTransDB.getVinyls().getCustomVinylTrans();
+                List<CustomVinylTrans> vinylTrans = customCarTrans.getVinyls().getCustomVinylTrans();
+                List<CustomVinylTrans> vinylTransListTmp = new ArrayList<>(vinylTrans);
+                vinylTransListTmp.removeAll(vinylTransDB);
+
+                if (vinylTransListTmp.size() > 0) {
+                    AchievementDefinitionEntity achievement4 = achievementDAO.findByName("achievement_ACH_INSTALL_VINYLS");
+                    if (achievement4 != null) {
+                        update(defaultCarEntity.getPersona(), achievement4, (long) vinylTransListTmp.size());
+                    }
+                }
+                break;
+            case PAINTS:
+                List<CustomPaintTrans> paintTransDB = customCarTransDB.getPaints().getCustomPaintTrans();
+                List<CustomPaintTrans> paintTrans = customCarTrans.getPaints().getCustomPaintTrans();
+                List<CustomPaintTrans> paintTransListTmp = new ArrayList<>(paintTrans);
+                paintTransListTmp.removeAll(paintTransDB);
+
+                if (paintTransListTmp.size() > 0) {
+                    AchievementDefinitionEntity achievement4 = achievementDAO.findByName("achievement_ACH_INSTALL_PAINTS");
+                    if (achievement4 != null) {
+                        update(defaultCarEntity.getPersona(), achievement4, 1L);
+                    }
+                }
+                break;
+            default:
+                break;
+        }
     }
 }
