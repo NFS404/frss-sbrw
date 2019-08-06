@@ -107,7 +107,14 @@ public class PersonaBO {
 				personaEntity.setCurCarIndex(curCarIndex);
 				personaDAO.update(personaEntity);
 			}
-			return carSlotDAO.getByPersonaIdEager(personaId, curCarIndex);
+			CarSlotEntity carSlotEntity = carSlotDAO.getByPersonaIdEager(personaId, curCarIndex);
+			CustomCarEntity customCar = carSlotEntity.getOwnedCar().getCustomCar();
+			customCar.getPaints().size();
+			customCar.getPerformanceParts().size();
+			customCar.getSkillModParts().size();
+			customCar.getVisualParts().size();
+			customCar.getVinyls().size();
+			return carSlotEntity;
 		}
 		return null;
 	}
