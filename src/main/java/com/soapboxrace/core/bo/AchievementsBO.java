@@ -96,7 +96,7 @@ public class AchievementsBO
             achPacket.setStatConversion(StatConversion.fromValue(achievement.getStatConversion()));
             achPacket.setBadgeDefinitionId(achievement.getBadgeDefinition().getId().intValue());
             achPacket.setProgressText(achievement.getProgressText());
-            achPacket.setIsVisible(true);
+            achPacket.setIsVisible(achievement.isVisible());
 
             PersonaAchievementEntity personaAchievement = personaAchievementDAO.getForPersonaAchievement(personaEntity, achievement);
 

@@ -130,9 +130,16 @@ public class EventResultTeamEscapeBO {
 		}
 
 		AchievementDefinitionEntity achievement2 = achievementDAO.findByName("achievement_ACH_DODGE_ROADBLOCK_TE");
-		if (achievement1 != null) {
+		if (achievement2 != null) {
 			achievementsBO.update(persona, achievement2, (long) teamEscapeArbitrationPacket.getRoadBlocksDodged());
 		}
+
+		AchievementDefinitionEntity achievement3 = achievementDAO.findByName("achievement_ACH_DRIVE_MILES");
+		Float distance = eventDataEntity.getEvent().getRanksDistance();
+		if (achievement3 != null && distance != null) {
+			achievementsBO.update(persona, achievement3, (long) (distance * 1000f));
+		}
+
 		return teamEscapeEventResult;
 	}
 
