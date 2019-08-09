@@ -23,7 +23,7 @@ public class OwnedCarDAO extends BaseDAO<OwnedCarEntity> {
 
 	public OwnedCarEntity findByIdEager(Long id) {
 		TypedQuery<OwnedCarEntity> query = entityManager.createQuery("SELECT obj FROM OwnedCarEntity obj " +
-				"INNER JOIN FETCH obj.customCar cc" +
+				"INNER JOIN FETCH obj.customCar cc " +
 				"WHERE obj.id = :id",
 				OwnedCarEntity.class
 		);
