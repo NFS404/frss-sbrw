@@ -58,7 +58,7 @@ public class PersonaBO {
 			List<AchievementRankEntity> ranks = personaAchievementRankDAO
 					.findAllForPersonaAchievement(persona, achievement)
 					.stream()
-					.filter(pr -> !pr.getState().equals("Locked"))
+					.filter(pr -> !pr.getState().equals("Locked") && !pr.getState().equals("InProgress"))
 					.map(PersonaAchievementRankEntity::getRank)
 					.collect(Collectors.toList());
 
