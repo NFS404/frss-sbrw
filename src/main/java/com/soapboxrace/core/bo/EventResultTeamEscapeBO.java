@@ -86,6 +86,7 @@ public class EventResultTeamEscapeBO {
 		eventDataEntity.setTopSpeed(teamEscapeArbitrationPacket.getTopSpeed());
 		eventDataDao.update(eventDataEntity);
 
+		boolean anyoneEvaded = false;
 		ArrayOfTeamEscapeEntrantResult arrayOfTeamEscapeEntrantResult = new ArrayOfTeamEscapeEntrantResult();
 		for (EventDataEntity racer : eventDataDao.getRacers(eventSessionId)) {
 			TeamEscapeEntrantResult teamEscapeEntrantResult = new TeamEscapeEntrantResult();
@@ -97,6 +98,10 @@ public class EventResultTeamEscapeBO {
 			teamEscapeEntrantResult.setPersonaId(racer.getPersonaId());
 			teamEscapeEntrantResult.setRanking(racer.getRank());
 			arrayOfTeamEscapeEntrantResult.getTeamEscapeEntrantResult().add(teamEscapeEntrantResult);
+
+			if (racer.getFinishReason() == 518 || racer.getFinishReason() == 22) {
+				anyoneEvaded = true;
+			}
 
 			if (!racer.getPersonaId().equals(activePersonaId)) {
 				XmppEvent xmppEvent = new XmppEvent(racer.getPersonaId(), openFireSoapBoxCli);
@@ -138,6 +143,13 @@ public class EventResultTeamEscapeBO {
 		Float distance = eventDataEntity.getEvent().getRanksDistance();
 		if (achievement3 != null && distance != null) {
 			achievementsBO.update(persona, achievement3, (long) (distance * 1000f));
+		}
+
+		if (anyoneEvaded) {
+			AchievementDefinitionEntity achievement4 = achievementDAO.findByName("achievement_ACH_EVADE_TE");
+			if (achievement4 != null) {
+				achievementsBO.update(persona, achievement4, 1L);
+			}
 		}
 
 		return teamEscapeEventResult;
