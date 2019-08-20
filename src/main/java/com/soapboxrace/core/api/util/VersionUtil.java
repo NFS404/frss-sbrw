@@ -8,9 +8,9 @@ import java.io.IOException;
 public class VersionUtil {
     public static String getVersionHash() {
         try {
-            return Resources.toString(Resources.getResource("version.txt"), Charsets.UTF_8);
+            return "frss-sbrw/" + Resources.toString(Resources.getResource("version.txt"), Charsets.UTF_8);
         } catch (IOException e) {
-            return "UNKNOWN";
+            return "frss-sbrw/UNKNOWN";
         }
     }
 }
