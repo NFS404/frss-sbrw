@@ -66,6 +66,9 @@ public class BasketBO
     @EJB
     private TreasureHuntDAO treasureHuntDAO;
 
+    @EJB
+    private CommerceBO commerceBO;
+
     private OwnedCarTrans getCar(String productId)
     {
         BasketDefinitionEntity basketDefinitonEntity = basketDefinitionsDAO.findById(productId);
@@ -250,6 +253,10 @@ public class BasketBO
         for (CarSlotEntity carSlotEntity : findByPersonaId)
         {
             CustomCarEntity customCar = carSlotEntity.getOwnedCar().getCustomCar();
+            if (customCar.getCarClassHash() == 0) {
+                commerceBO.calcNewCarClass(customCar);
+                customCarDAO.update(customCar);
+            }
             customCar.getPaints().size();
             customCar.getPerformanceParts().size();
             customCar.getSkillModParts().size();

@@ -133,7 +133,7 @@ public class CommerceBO {
 		carSlotDAO.update(defaultCarEntity);
 	}
 
-	private void calcNewCarClass(CustomCarEntity customCarEntity) {
+	public void calcNewCarClass(CustomCarEntity customCarEntity) {
 		int physicsProfileHash = customCarEntity.getPhysicsProfileHash();
 		CarClassesEntity carClassesEntity = carClassesDAO.findByHash(physicsProfileHash);
 		if(carClassesEntity == null) {

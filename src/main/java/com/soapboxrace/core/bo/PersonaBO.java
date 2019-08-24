@@ -38,6 +38,12 @@ public class PersonaBO {
 	@EJB
 	private PersonaAchievementRankDAO personaAchievementRankDAO;
 
+	@EJB
+	private CommerceBO commerceBO;
+
+	@EJB
+	private CustomCarDAO customCarDAO;
+
 	public void updateBadges(long idPersona, BadgeBundle badgeBundle) {
 		PersonaEntity persona = personaDAO.findById(idPersona);
 
@@ -109,6 +115,10 @@ public class PersonaBO {
 			}
 			CarSlotEntity carSlotEntity = carSlotDAO.getByPersonaIdEager(personaId, curCarIndex);
 			CustomCarEntity customCar = carSlotEntity.getOwnedCar().getCustomCar();
+			if (customCar.getCarClassHash() == 0) {
+				commerceBO.calcNewCarClass(customCar);
+				customCarDAO.update(customCar);
+			}
 			customCar.getPaints().size();
 			customCar.getPerformanceParts().size();
 			customCar.getSkillModParts().size();
@@ -134,6 +144,10 @@ public class PersonaBO {
 	public OwnedCarEntity getCarByOwnedCarId(Long ownedCarId) {
 		OwnedCarEntity ownedCarEntity = ownedCarDAO.findByIdEager(ownedCarId);
 		CustomCarEntity customCar = ownedCarEntity.getCustomCar();
+		if (customCar.getCarClassHash() == 0) {
+			commerceBO.calcNewCarClass(customCar);
+			customCarDAO.update(customCar);
+		}
 		customCar.getPaints().size();
 		customCar.getPerformanceParts().size();
 		customCar.getSkillModParts().size();
