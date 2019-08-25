@@ -2,7 +2,9 @@ package com.soapboxrace.core.api;
 
 import com.soapboxrace.core.api.util.Secured;
 import com.soapboxrace.core.api.util.VersionUtil;
+import com.soapboxrace.core.bo.ParameterBO;
 
+import javax.ejb.EJB;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -13,6 +15,9 @@ import java.util.GregorianCalendar;
 
 @Path("/systeminfo")
 public class SystemInfo {
+
+	@EJB
+	private ParameterBO parameterBO;
 
 	@GET
 	@Secured
@@ -31,8 +36,12 @@ public class SystemInfo {
 		systemInfo.setNucleusNamespace("sbrw-live");
 		systemInfo.setNucleusNamespaceWeb("sbr_web");
 		systemInfo.setPersonaCacheTimeout(900);
-		systemInfo.setPortalDomain("static.nextdata.eu");
-		systemInfo.setPortalStoreFailurePage("static.nextdata.eu/fail");
+		String portalDomain = parameterBO.getStrParam("PORTAL_DOMAIN");
+		if (portalDomain == null) {
+			portalDomain = "localhost";
+		}
+		systemInfo.setPortalDomain(portalDomain);
+		systemInfo.setPortalStoreFailurePage(portalDomain + "/fail");
 		systemInfo.setPortalTimeOut("6000");
 		systemInfo.setShardName("CORE");
 		GregorianCalendar c = new GregorianCalendar();
