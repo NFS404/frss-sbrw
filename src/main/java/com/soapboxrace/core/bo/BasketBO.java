@@ -223,6 +223,7 @@ public class BasketBO
         carSlotEntity.setOwnedCar(ownedCarEntity);
         OwnedCarConverter.trans2Entity(ownedCarTrans, ownedCarEntity);
         OwnedCarConverter.details2NewEntity(ownedCarTrans, ownedCarEntity);
+        commerceBO.calcNewCarClass(customCarEntity);
 
         carSlotDAO.insert(carSlotEntity);
 
