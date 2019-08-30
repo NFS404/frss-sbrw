@@ -100,10 +100,16 @@ public class EventsBO {
 
 		treasureHuntEntity.setThDate(LocalDate.now());
 		treasureHuntDao.update(treasureHuntEntity);
-		
-		achievementsBO.update(personaDAO.findById(activePersonaId),
+
+		PersonaEntity persona = personaDAO.findById(activePersonaId);
+
+		achievementsBO.update(persona,
 				achievementDAO.findByName("achievement_ACH_COMPLETE_TH"),
 				1L);
+
+		achievementsBO.update(persona,
+				achievementDAO.findByName("achievement_ACH_WINSTREAK_TH"),
+				(long) treasureHuntEntity.getStreak(), false);
 
 		return MarshalXML.marshal(getTreasureHuntAccolades(activePersonaId, treasureHuntEntity));
 	}
