@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+    <!-- Main plugin class -->
+    <class>eu.nextdata.ofsoapbox.SoapboxPlugin</class>
+
+    <!-- Plugin meta-data -->
+    <name>SBRW Admin Plugin</name>
+    <description>Listens for admin messages and forwards them to soapbox-race-core</description>
+    <author>redbluescreen</author>
+
+    <version>1.0</version>
+    <date>07/01/2019</date>
+    <url></url>
+    <minServerVersion>4.0.0</minServerVersion>
+    <licenseType>gpl</licenseType>
+
+    <!-- Admin console entries -->
+    <adminconsole>
+    </adminconsole>
+</plugin>
