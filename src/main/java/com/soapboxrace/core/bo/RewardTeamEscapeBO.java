@@ -1,10 +1,5 @@
 package com.soapboxrace.core.bo;
 
-import java.util.Random;
-
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-
 import com.soapboxrace.core.bo.util.RewardVO;
 import com.soapboxrace.core.dao.PersonaDAO;
 import com.soapboxrace.core.jpa.EventEntity;
@@ -14,6 +9,10 @@ import com.soapboxrace.core.jpa.SkillModRewardType;
 import com.soapboxrace.jaxb.http.Accolades;
 import com.soapboxrace.jaxb.http.EnumRewardType;
 import com.soapboxrace.jaxb.http.TeamEscapeArbitrationPacket;
+
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import java.util.Random;
 
 @Stateless
 public class RewardTeamEscapeBO extends RewardBO {
@@ -30,7 +29,7 @@ public class RewardTeamEscapeBO extends RewardBO {
 	public Accolades getTeamEscapeAccolades(Long activePersonaId, TeamEscapeArbitrationPacket teamEscapeArbitrationPacket,
 			EventSessionEntity eventSessionEntity) {
 		int finishReason = teamEscapeArbitrationPacket.getFinishReason();
-		if (!legitRaceBO.isLegit(activePersonaId, teamEscapeArbitrationPacket, eventSessionEntity) && finishReason != 22) {
+		if (!legitRaceBO.isLegit(activePersonaId, teamEscapeArbitrationPacket, eventSessionEntity) || finishReason != 22) {
 			return new Accolades();
 		}
 
