@@ -4,6 +4,7 @@ import com.soapboxrace.core.bo.util.CommerceOp;
 import com.soapboxrace.core.bo.util.OwnedCarConverter;
 import com.soapboxrace.core.dao.*;
 import com.soapboxrace.core.jpa.*;
+import com.soapboxrace.jaxb.CommerceException;
 import com.soapboxrace.jaxb.http.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +62,41 @@ public class CommerceBO {
 
 	@EJB
 	private CarClassesDAO carClassesDAO;
+
+	private static class PriceSum {
+		float cash = 0;
+		float boost = 0;
+
+		public void buyProduct(ProductEntity productEntity) {
+			if (productEntity.getCurrency().equals("CASH")) {
+				cash -= productEntity.getPrice();
+			} else {
+				boost -= productEntity.getPrice();
+			}
+		}
+
+		public void buyVinylProduct(VinylProductEntity productEntity) {
+			if (productEntity.getCurrency().equals("CASH")) {
+				cash -= productEntity.getPrice();
+			} else {
+				boost -= productEntity.getPrice();
+			}
+		}
+
+		public void resellProduct(ProductEntity productEntity) {
+			cash += productEntity.getResalePrice();
+		}
+
+		public boolean hasSufficientFunds(PersonaEntity personaEntity) {
+			return personaEntity.getCash() + cash >= 0 &&
+					personaEntity.getBoost() + boost >= 0;
+		}
+
+		public void applyToPersona(PersonaEntity personaEntity) {
+			personaEntity.setCash(personaEntity.getCash() + cash);
+			personaEntity.setBoost(personaEntity.getBoost() + boost);
+		}
+	}
 
 	public OwnedCarTrans responseCar(CommerceSessionTrans commerceSessionTrans) {
 		OwnedCarTrans ownedCarTrans = new OwnedCarTrans();
@@ -231,18 +267,17 @@ public class CommerceBO {
 	}
 
 	public void updateEconomy(CommerceOp commerceOp, List<BasketItemTrans> basketItemTransList, CommerceSessionTrans commerceSessionTrans,
-			CarSlotEntity defaultCarEntity) {
+			CarSlotEntity defaultCarEntity) throws CommerceException {
 		if (parameterBO.getBoolParam("ENABLE_ECONOMY")) {
 			OwnedCarTrans ownedCarTrans = OwnedCarConverter.entity2Trans(defaultCarEntity.getOwnedCar());
 			CustomCarTrans customCarTransDB = ownedCarTrans.getCustomCar();
 			CustomCarTrans customCarTrans = commerceSessionTrans.getUpdatedCar().getCustomCar();
-			Float basketTotalValue;
+			PriceSum basketTotalValue;
 			if (CommerceOp.VINYL.equals(commerceOp)) {
 				basketTotalValue = getVinylTotalValue(basketItemTransList);
 			} else {
 				basketTotalValue = getBasketTotalValue(basketItemTransList);
 			}
-			Float resellTotalValue = 0F;
 			switch (commerceOp) {
 			case PERFORMANCE:
 				List<PerformancePartTrans> performancePartTransDB = customCarTransDB.getPerformanceParts().getPerformancePartTrans();
@@ -254,7 +289,7 @@ public class CommerceBO {
 				for (PerformancePartTrans performancePartTransTmp : performancePartTransListTmp) {
 					ProductEntity productEntity = productDAO.findByHash(performancePartTransTmp.getPerformancePartAttribHash());
 					if (productEntity != null) {
-						resellTotalValue = Float.sum(resellTotalValue, productEntity.getResalePrice());
+						basketTotalValue.resellProduct(productEntity);
 					} else {
 						System.err.println("INVALID HASH: [" + performancePartTransTmp.getPerformancePartAttribHash() + "]");
 					}
@@ -270,7 +305,7 @@ public class CommerceBO {
 				for (SkillModPartTrans skillModPartTransTmp : skillModPartTransListTmp) {
 					ProductEntity productEntity = productDAO.findByHash(skillModPartTransTmp.getSkillModPartAttribHash());
 					if (productEntity != null) {
-						resellTotalValue = Float.sum(resellTotalValue, productEntity.getResalePrice());
+						basketTotalValue.resellProduct(productEntity);
 					} else {
 						System.err.println("INVALID HASH: [" + skillModPartTransTmp.getSkillModPartAttribHash() + "]");
 					}
@@ -288,27 +323,25 @@ public class CommerceBO {
 					Integer hash = inventoryItem.getHash();
 					ProductEntity productEntity = productDAO.findByHash(hash);
 					if (productEntity != null) {
-						resellTotalValue = Float.sum(resellTotalValue, productEntity.getResalePrice());
+						basketTotalValue.resellProduct(productEntity);
 					}
 				}
 			}
-			Float result = Float.sum(basketTotalValue, (resellTotalValue * -1)) * -1;
-			System.out.println("basket: [" + basketTotalValue + "]");
-			System.out.println("resell: [" + resellTotalValue + "]");
-			System.out.println("result: [" + result + "]");
 			PersonaEntity persona = defaultCarEntity.getPersona();
-			float cash = (float) persona.getCash();
-			persona.setCash(Float.sum(cash, result));
+			if (!basketTotalValue.hasSufficientFunds(persona)) {
+				throw new CommerceException(CommerceResultStatus.FAIL_INSUFFICIENT_FUNDS);
+			}
+			basketTotalValue.applyToPersona(persona);
 			personaDAO.update(persona);
 		}
 	}
 
-	private Float getVinylTotalValue(List<BasketItemTrans> basketItemTransList) {
-		Float price = 0F;
+	private PriceSum getVinylTotalValue(List<BasketItemTrans> basketItemTransList) {
+		PriceSum price = new PriceSum();
 		for (BasketItemTrans basketItemTrans : basketItemTransList) {
 			VinylProductEntity vinylProductEntity = vinylProductDAO.findByProductId(basketItemTrans.getProductId());
 			if (vinylProductEntity != null) {
-				price = Float.sum(price, vinylProductEntity.getPrice());
+				price.buyVinylProduct(vinylProductEntity);
 				disableItem(vinylProductEntity);
 			} else {
 				System.err.println("product [" + basketItemTrans.getProductId() + "] not found");
@@ -317,12 +350,12 @@ public class CommerceBO {
 		return price;
 	}
 
-	private Float getBasketTotalValue(List<BasketItemTrans> basketItemTransList) {
-		Float price = 0F;
+	private PriceSum getBasketTotalValue(List<BasketItemTrans> basketItemTransList) {
+		PriceSum price = new PriceSum();
 		for (BasketItemTrans basketItemTrans : basketItemTransList) {
 			ProductEntity productEntity = productDAO.findByProductId(basketItemTrans.getProductId());
 			if (productEntity != null) {
-				price = Float.sum(price, productEntity.getPrice());
+				price.buyProduct(productEntity);
 				disableItem(productEntity);
 			} else {
 				System.err.println("product [" + basketItemTrans.getProductId() + "] not found");

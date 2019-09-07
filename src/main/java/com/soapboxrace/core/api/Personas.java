@@ -7,6 +7,7 @@ import com.soapboxrace.core.bo.util.OwnedCarConverter;
 import com.soapboxrace.core.jpa.CarSlotEntity;
 import com.soapboxrace.core.jpa.OwnedCarEntity;
 import com.soapboxrace.core.jpa.PersonaEntity;
+import com.soapboxrace.jaxb.CommerceException;
 import com.soapboxrace.jaxb.http.*;
 import com.soapboxrace.jaxb.util.MarshalXML;
 import com.soapboxrace.jaxb.util.UnmarshalXML;
@@ -55,10 +56,15 @@ public class Personas {
 		List<BasketItemTrans> basketItemTrans = commerceSessionTrans.getBasket().getItems().getBasketItemTrans();
 		CarSlotEntity defaultCarEntity = personaBO.getDefaultCarEntity(personaId);
 		CommerceOp commerceOp = commerceBO.detectCommerceOperation(commerceSessionTrans, defaultCarEntity);
-		commerceBO.updateEconomy(commerceOp, basketItemTrans, commerceSessionTrans, defaultCarEntity);
-		inventoryBO.updateInventory(commerceOp, basketItemTrans, commerceSessionTrans, defaultCarEntity);
-		achievementsBO.updateFromCommerce(commerceOp, commerceSessionTrans, defaultCarEntity);
-		commerceBO.updateCar(commerceOp, commerceSessionTrans, defaultCarEntity);
+		CommerceResultStatus status = CommerceResultStatus.SUCCESS;
+		try {
+			commerceBO.updateEconomy(commerceOp, basketItemTrans, commerceSessionTrans, defaultCarEntity);
+			inventoryBO.updateInventory(commerceOp, basketItemTrans, commerceSessionTrans, defaultCarEntity);
+			achievementsBO.updateFromCommerce(commerceOp, commerceSessionTrans, defaultCarEntity);
+			commerceBO.updateCar(commerceOp, commerceSessionTrans, defaultCarEntity);
+		} catch (CommerceException e) {
+			status = e.getStatus();
+		}
 
 		commerceSessionResultTrans.setInvalidBasket(new InvalidBasketTrans());
 		ArrayOfInventoryItemTrans arrayOfInventoryItemTrans = new ArrayOfInventoryItemTrans();
@@ -76,7 +82,7 @@ public class Personas {
 		arrayOfWalletTrans.getWalletTrans().add(walletTrans);
 		arrayOfWalletTrans.getWalletTrans().add(walletTrans1);
 		commerceSessionResultTrans.setInventoryItems(arrayOfInventoryItemTrans);
-		commerceSessionResultTrans.setStatus(CommerceResultStatus.SUCCESS);
+		commerceSessionResultTrans.setStatus(status);
 		commerceSessionResultTrans.setUpdatedCar(OwnedCarConverter.entity2Trans(defaultCarEntity.getOwnedCar()));
 		commerceSessionResultTrans.setWallets(arrayOfWalletTrans);
 		return commerceSessionResultTrans;
