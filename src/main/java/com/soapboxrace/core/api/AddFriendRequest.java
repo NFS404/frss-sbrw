@@ -1,9 +1,5 @@
 package com.soapboxrace.core.api;
 
-import javax.ejb.EJB;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-
 import com.soapboxrace.core.api.util.Secured;
 import com.soapboxrace.core.bo.TokenSessionBO;
 import com.soapboxrace.core.dao.FriendDAO;
@@ -12,15 +8,14 @@ import com.soapboxrace.core.jpa.FriendEntity;
 import com.soapboxrace.core.jpa.PersonaEntity;
 import com.soapboxrace.core.xmpp.OpenFireSoapBoxCli;
 import com.soapboxrace.core.xmpp.XmppChat;
-import com.soapboxrace.jaxb.http.ArrayOfBadgePacket;
 import com.soapboxrace.jaxb.http.FriendPersona;
 import com.soapboxrace.jaxb.http.FriendResult;
-import com.soapboxrace.jaxb.http.PersonaBase;
 import com.soapboxrace.jaxb.util.MarshalXML;
 import com.soapboxrace.jaxb.xmpp.XMPP_FriendPersonaType;
-import com.soapboxrace.jaxb.xmpp.XMPP_ResponseTypePersonaBase;
 
-import java.util.Objects;
+import javax.ejb.EJB;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 
 @Path("/addfriendrequest")
 public class AddFriendRequest
@@ -40,25 +35,38 @@ public class AddFriendRequest
 	@GET
 	@Secured
 	@Produces(MediaType.APPLICATION_XML)
-	public String addFriendRequest(@HeaderParam("securityToken") String securityToken, @QueryParam("displayName") String displayName)
+	public FriendResult addFriendRequest(@HeaderParam("securityToken") String securityToken, @QueryParam("displayName") String displayName)
 	{
 		long activePersonaId = sessionBO.getActivePersonaId(securityToken);
 		PersonaEntity active = personaDAO.findById(activePersonaId);
 		PersonaEntity target = personaDAO.findByName(displayName);
 
-		if (target == null || active == null || Objects.equals(active.getPersonaId(), target.getPersonaId()))
-			return "";
+		FriendResult friendResult = new FriendResult();
+		// Result codes:
+		// 0 -> success
+		// 1 -> cannot add yourself
+		// 2 -> already in list
+		// 3 -> does not exist
+		// 4 -> list full
+
+		if (target == null || active == null) {
+			friendResult.setResult(3);
+			return friendResult;
+		}
+
+		if (active.getUser().getId().equals(target.getUser().getId())) {
+			friendResult.setResult(1);
+			return friendResult;
+		}
 
 		if (friendDAO.findBySenderAndRecipient(target.getUser().getId(), activePersonaId) != null)
 		{
-			openFireSoapBoxCli.send(XmppChat.createSystemMessage("You've already sent a friend request to this driver."), activePersonaId);
-			return "";
+			friendResult.setResult(2);
+			return friendResult;
 		}
 
-//		openFireSoapBoxCli.send(XmppChat.createSystemMessage("Sent friend request!"), activePersonaId);
-//		openFireSoapBoxCli.send(XmppChat.createSystemMessage(String.format("You received a friend request from %s!", active.getName())), target.getPersonaId());
+		openFireSoapBoxCli.send(XmppChat.createSystemMessage(String.format("You received a friend request from %s!", active.getName())), target.getPersonaId());
 
-		FriendResult friendResult = new FriendResult();
 		FriendPersona resultFriendPersona = new FriendPersona();
 
 		resultFriendPersona.setIconIndex(target.getIconIndex());
@@ -91,6 +99,6 @@ public class AddFriendRequest
 
 		friendDAO.insert(friendEntity);
 
-		return MarshalXML.marshal(friendResult);
+		return friendResult;
 	}
 }
