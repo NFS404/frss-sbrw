@@ -248,6 +248,7 @@ public class UserBO {
 			ProfileData profileData = new ProfileData();
 			profileData.setName(personaEntity.getName());
 			profileData.setCash(personaEntity.getCash());
+			profileData.setBoost(personaEntity.getBoost());
 			profileData.setIconIndex(personaEntity.getIconIndex());
 			profileData.setPersonaId(personaEntity.getPersonaId());
 			profileData.setLevel(personaEntity.getLevel());

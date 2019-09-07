@@ -1,16 +1,15 @@
 package com.soapboxrace.core.bo;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-
 import com.soapboxrace.core.dao.*;
 import com.soapboxrace.core.jpa.*;
 import com.soapboxrace.core.xmpp.OpenFireRestApiCli;
 import com.soapboxrace.jaxb.http.*;
+
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Stateless
 public class DriverPersonaBO {
@@ -81,6 +80,7 @@ public class DriverPersonaBO {
 		// switch to apache beanutils copy
 		profileData.setName(personaEntity.getName());
 		profileData.setCash(personaEntity.getCash());
+		profileData.setBoost(personaEntity.getBoost());
 		profileData.setIconIndex(personaEntity.getIconIndex());
 		profileData.setPersonaId(personaEntity.getPersonaId());
 		profileData.setLevel(personaEntity.getLevel());

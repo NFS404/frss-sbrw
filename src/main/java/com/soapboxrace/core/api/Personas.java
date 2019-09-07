@@ -68,8 +68,13 @@ public class Personas {
 		walletTrans.setBalance(defaultCarEntity.getPersona().getCash());
 		walletTrans.setCurrency("CASH");
 
+		WalletTrans walletTrans1 = new WalletTrans();
+		walletTrans1.setBalance(defaultCarEntity.getPersona().getBoost());
+		walletTrans1.setCurrency("BOOST");
+
 		ArrayOfWalletTrans arrayOfWalletTrans = new ArrayOfWalletTrans();
 		arrayOfWalletTrans.getWalletTrans().add(walletTrans);
+		arrayOfWalletTrans.getWalletTrans().add(walletTrans1);
 		commerceSessionResultTrans.setInventoryItems(arrayOfInventoryItemTrans);
 		commerceSessionResultTrans.setStatus(CommerceResultStatus.SUCCESS);
 		commerceSessionResultTrans.setUpdatedCar(OwnedCarConverter.entity2Trans(defaultCarEntity.getOwnedCar()));
@@ -96,8 +101,13 @@ public class Personas {
 		walletTrans.setBalance(personaEntity.getCash());
 		walletTrans.setCurrency("CASH");
 
+		WalletTrans walletTrans1 = new WalletTrans();
+		walletTrans1.setBalance(personaEntity.getBoost());
+		walletTrans1.setCurrency("BOOST");
+
 		ArrayOfWalletTrans arrayOfWalletTrans = new ArrayOfWalletTrans();
 		arrayOfWalletTrans.getWalletTrans().add(walletTrans);
+		arrayOfWalletTrans.getWalletTrans().add(walletTrans1);
 
 		commerceResultTrans.setWallets(arrayOfWalletTrans);
 		commerceResultTrans.setCommerceItems(new ArrayOfCommerceItemTrans());
