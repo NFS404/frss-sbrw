@@ -245,18 +245,23 @@ public class User
 	@LauncherChecks
 	public Response modernRegister(ModernRegisterRequest req)
 	{
-		String message = "Account created! But before logging in, you need to verify your email.";
+		boolean emailVerify;
 		try {
-			userBO.createModernUser(req.getEmail(), req.getPassword(), req.getTicket(), sr);
+			emailVerify = userBO.createModernUser(req.getEmail(), req.getPassword(), req.getTicket(), sr);
 		} catch (AuthException e) {
 			return Response.status(Response.Status.BAD_REQUEST).entity(new JSONError(e.getMessage())).build();
 		}
-		String xUA = sr.getHeader("X-User-Agent");
-		if (xUA != null && xUA.startsWith("electron-launcher/")) {
-			return Response.ok(new ModernRegisterResponse(message)).build();
+		if (!emailVerify) {
+			return Response.ok(new ModernRegisterResponse("Account created! You can now log in.")).build();
 		} else {
-			// meto pls fix
-			return Response.status(Response.Status.BAD_REQUEST).entity(new JSONError(message)).build();
+			String message = "Account created! But before logging in, you need to verify your email.";
+			String xUA = sr.getHeader("X-User-Agent");
+			if (xUA != null && xUA.startsWith("electron-launcher/")) {
+				return Response.ok(new ModernRegisterResponse(message)).build();
+			} else {
+				// meto pls fix
+				return Response.status(Response.Status.BAD_REQUEST).entity(new JSONError(message)).build();
+			}
 		}
 	}
 

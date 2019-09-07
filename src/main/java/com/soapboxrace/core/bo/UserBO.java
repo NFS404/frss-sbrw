@@ -73,15 +73,17 @@ public class UserBO {
 		xmppRestApiCli.createUpdatePersona(personaId, xmppPasswd);
 	}
 
-	private UserEntity createUser(String email, String passwd, HttpServletRequest request) {
+	private UserEntity createUser(String email, String passwd, boolean setVerifyToken, HttpServletRequest request) {
 		UserEntity userEntity = new UserEntity();
 		userEntity.setEmail(email);
 		userEntity.setPassword(passwd);
 		userEntity.setCreated(LocalDateTime.now());
 		userEntity.setLastLogin(LocalDateTime.now());
-		byte key[] = new byte[16];
-		new SecureRandom().nextBytes(key);
-		userEntity.setVerifyToken(BaseEncoding.base16().lowerCase().encode(key));
+		if (setVerifyToken) {
+			byte key[] = new byte[16];
+			new SecureRandom().nextBytes(key);
+			userEntity.setVerifyToken(BaseEncoding.base16().lowerCase().encode(key));
+		}
 		userEntity.setIpAddress(request.getHeader("X-Forwarded-For"));
 		String xUA = request.getHeader("X-User-Agent");
 		userEntity.setUserAgent(xUA != null ? xUA : request.getHeader("User-Agent"));
@@ -92,6 +94,11 @@ public class UserBO {
 
 	public LoginStatusVO createUserWithTicket(String email, String passwd, String ticket, HttpServletRequest request) {
 		LoginStatusVO loginStatusVO = new LoginStatusVO(0L, "", false);
+
+		if (parameterBO.getBoolParam("LEGACY_AUTH_DISABLE")) {
+			loginStatusVO.setDescription("This server requires launcher with Modern Auth support.");
+			return loginStatusVO;
+		}
 
 		if(isInvalidEmail(email)) {
 			loginStatusVO.setDescription("Registration Error: Invalid Email Format!");
@@ -119,15 +126,28 @@ public class UserBO {
 				return loginStatusVO;
 			}
 		}
-		UserEntity userEntity = createUser(email, passwd, request);
+		boolean verifyEmail = !parameterBO.getBoolParam("DISABLE_EMAIL_VERIFICATION");
+		UserEntity userEntity = createUser(email, passwd, verifyEmail, request);
+		if (verifyEmail) {
+			try {
+				sendEmailVerify(email, userEntity.getVerifyToken());
+			} catch (Exception e) {
+				loginStatusVO.setDescription("Failed to send verification email!");
+				return loginStatusVO;
+			}
+		}
 		inviteTicketEntity.setUser(userEntity);
 		inviteTicketDAO.insert(inviteTicketEntity);
-		loginStatusVO = new LoginStatusVO(userEntity.getId(), "", true);
 		serverInfoDAO.updateNumberOfRegistered();
+		if (verifyEmail) {
+			loginStatusVO.setDescription("Account created! But before logging in, you need to verify your email.");
+			return loginStatusVO;
+		}
+		loginStatusVO = new LoginStatusVO(userEntity.getId(), "", true);
 		return loginStatusVO;
 	}
 
-	public void createModernUser(String email, String password, String ticket, HttpServletRequest request) throws AuthException {
+	public boolean createModernUser(String email, String password, String ticket, HttpServletRequest request) throws AuthException {
 		if (parameterBO.getBoolParam("MODERN_AUTH_DISABLE")) {
 			throw new AuthException("Modern Auth not enabled!");
 		}
@@ -155,17 +175,22 @@ public class UserBO {
 			}
 		}
 		String hash = argon2.hash(password);
-		UserEntity createdUser = createUser(email, hash, request);
-		try {
-			sendEmailVerify(email, createdUser.getVerifyToken());
-		} catch (Exception e) {
-			throw new AuthException("Failed to send verification email!");
+		boolean verifyEmail = !parameterBO.getBoolParam("DISABLE_EMAIL_VERIFICATION");
+		UserEntity createdUser = createUser(email, hash, verifyEmail, request);
+		if (verifyEmail) {
+			try {
+				sendEmailVerify(email, createdUser.getVerifyToken());
+			} catch (Exception e) {
+				throw new AuthException("Failed to send verification email!");
+			}
 		}
 		if (inviteTicketEntity != null) {
 			inviteTicketEntity.setUser(createdUser);
 			inviteTicketDAO.insert(inviteTicketEntity);
 		}
 		serverInfoDAO.updateNumberOfRegistered();
+
+		return verifyEmail;
 	}
 
 	private boolean isInvalidEmail(String email) {

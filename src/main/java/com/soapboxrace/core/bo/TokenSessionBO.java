@@ -137,6 +137,12 @@ public class TokenSessionBO {
 	}
 
 	public LoginStatusVO login(String email, String password, HttpServletRequest httpRequest) {
+		if (parameterBO.getBoolParam("LEGACY_AUTH_DISABLE")) {
+			LoginStatusVO loginStatusVO = new LoginStatusVO(0L, "", false);
+			loginStatusVO.setDescription("This server requires launcher with Modern Auth support.");
+			return loginStatusVO;
+		}
+
 		LoginStatusVO loginStatusVO = checkGeoIp(httpRequest.getRemoteAddr());
 		if (!loginStatusVO.isLoginOk()) {
 			return loginStatusVO;
