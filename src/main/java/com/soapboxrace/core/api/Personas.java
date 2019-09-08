@@ -103,19 +103,6 @@ public class Personas {
 		ArrayOfInventoryItemTrans arrayOfInventoryItemTrans = new ArrayOfInventoryItemTrans();
 		arrayOfInventoryItemTrans.getInventoryItemTrans().add(new InventoryItemTrans());
 
-		WalletTrans walletTrans = new WalletTrans();
-		walletTrans.setBalance(personaEntity.getCash());
-		walletTrans.setCurrency("CASH");
-
-		WalletTrans walletTrans1 = new WalletTrans();
-		walletTrans1.setBalance(personaEntity.getBoost());
-		walletTrans1.setCurrency("BOOST");
-
-		ArrayOfWalletTrans arrayOfWalletTrans = new ArrayOfWalletTrans();
-		arrayOfWalletTrans.getWalletTrans().add(walletTrans);
-		arrayOfWalletTrans.getWalletTrans().add(walletTrans1);
-
-		commerceResultTrans.setWallets(arrayOfWalletTrans);
 		commerceResultTrans.setCommerceItems(new ArrayOfCommerceItemTrans());
 		commerceResultTrans.setInvalidBasket(new InvalidBasketTrans());
 		commerceResultTrans.setInventoryItems(arrayOfInventoryItemTrans);
@@ -139,6 +126,21 @@ public class Personas {
 
 			commerceResultTrans.setStatus(basketBO.buyCar(productId, personaEntity, securityToken));
 		}
+
+		WalletTrans walletTrans = new WalletTrans();
+		walletTrans.setBalance(personaEntity.getCash());
+		walletTrans.setCurrency("CASH");
+
+		WalletTrans walletTrans1 = new WalletTrans();
+		walletTrans1.setBalance(personaEntity.getBoost());
+		walletTrans1.setCurrency("BOOST");
+
+		ArrayOfWalletTrans arrayOfWalletTrans = new ArrayOfWalletTrans();
+		arrayOfWalletTrans.getWalletTrans().add(walletTrans);
+		arrayOfWalletTrans.getWalletTrans().add(walletTrans1);
+
+		commerceResultTrans.setWallets(arrayOfWalletTrans);
+
 		return commerceResultTrans;
 	}
 
