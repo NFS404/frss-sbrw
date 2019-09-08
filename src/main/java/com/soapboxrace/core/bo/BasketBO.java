@@ -61,13 +61,13 @@ public class BasketBO
     private AchievementsBO achievementsBO;
 
     @EJB
-    private CarBO carBO;
-
-    @EJB
     private TreasureHuntDAO treasureHuntDAO;
 
     @EJB
     private CommerceBO commerceBO;
+
+    @EJB
+    private CarClassesDAO carClassesDAO;
 
     private OwnedCarTrans getCar(String productId)
     {
@@ -223,7 +223,6 @@ public class BasketBO
 
     public CarSlotEntity addCar(String productId, PersonaEntity personaEntity)
     {
-        ProductEntity productEntity = productDao.findByProductId(productId);
         OwnedCarTrans ownedCarTrans = getCar(productId);
         ownedCarTrans.setId(0L);
         ownedCarTrans.getCustomCar().setId(0);
@@ -242,15 +241,15 @@ public class BasketBO
 
         carSlotDAO.insert(carSlotEntity);
 
-        String longDesc = productEntity.getLongDescription();
-        String carId = longDesc.split("_")[1];
-        String brand = carBO.getBrand(carId);
+        CarClassesEntity carClass = carClassesDAO.findByHash(customCarEntity.getPhysicsProfileHash());
+        String brand = carClass != null ? carClass.getManufactor() : null;
 
-        AchievementDefinitionEntity achievement = achievementDAO.findByName("achievement_ACH_OWN_" + brand);
+        if (brand != null) {
+            AchievementDefinitionEntity achievement = achievementDAO.findByName("achievement_ACH_OWN_" + brand);
 
-        if (achievement != null)
-        {
-            achievementsBO.update(personaEntity, achievement, 1L);
+            if (achievement != null) {
+                achievementsBO.update(personaEntity, achievement, 1L);
+            }
         }
 
         AchievementDefinitionEntity achievement2 = achievementDAO.findByName("achievement_ACH_OWN_CAR");
