@@ -1,16 +1,15 @@
 package com.soapboxrace.core.dao;
 
-import java.util.List;
-import java.util.Random;
+import com.soapboxrace.core.dao.util.BaseDAO;
+import com.soapboxrace.core.jpa.ProductEntity;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-
-import com.soapboxrace.core.dao.util.BaseDAO;
-import com.soapboxrace.core.jpa.ProductEntity;
+import java.util.List;
+import java.util.Random;
 
 @Stateless
 public class ProductDAO extends BaseDAO<ProductEntity>
@@ -27,7 +26,7 @@ public class ProductDAO extends BaseDAO<ProductEntity>
         return entityManager.find(ProductEntity.class, id);
     }
 
-    public List<ProductEntity> findByLevelEnabled(String categoryName, String productType, int minLevel, boolean enabled, boolean premium)
+    public List<ProductEntity> findByLevelEnabled(String categoryName, String productType, int minLevel, boolean enabled, boolean premium, boolean admin)
     {
         TypedQuery<ProductEntity> query = entityManager.createNamedQuery("ProductEntity.findByLevelEnabled", ProductEntity.class);
         query.setParameter("categoryName", categoryName);
@@ -35,6 +34,7 @@ public class ProductDAO extends BaseDAO<ProductEntity>
         query.setParameter("enabled", enabled);
         query.setParameter("minLevel", minLevel);
         query.setParameter("premium", premium);
+        query.setParameter("admin", admin);
         return query.getResultList();
     }
 

@@ -1,10 +1,5 @@
 package com.soapboxrace.core.bo;
 
-import java.util.List;
-
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-
 import com.soapboxrace.core.dao.CategoryDAO;
 import com.soapboxrace.core.dao.PersonaDAO;
 import com.soapboxrace.core.dao.ProductDAO;
@@ -15,6 +10,10 @@ import com.soapboxrace.core.jpa.ProductEntity;
 import com.soapboxrace.core.jpa.VinylProductEntity;
 import com.soapboxrace.jaxb.http.ArrayOfProductTrans;
 import com.soapboxrace.jaxb.http.ProductTrans;
+
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import java.util.List;
 
 @Stateless
 public class ProductBO {
@@ -33,13 +32,15 @@ public class ProductBO {
 
 	public List<ProductEntity> productsInCategory(String categoryName, String productType, Long personaId) {
 		boolean premium = false;
+		boolean admin = false;
 		int level = 1;
 		if (personaId != null && !personaId.equals(0L)) {
 			PersonaEntity personaEntity = personaDao.findById(personaId);
 			premium = personaEntity.getUser().isPremium();
+			admin = personaEntity.getUser().isAdmin();
 			level = personaEntity.getLevel();
 		}
-		return ProductDAO.findByLevelEnabled(categoryName, productType, level, true, premium);
+		return ProductDAO.findByLevelEnabled(categoryName, productType, level, true, premium, admin);
 	}
 
 	public List<CategoryEntity> categories() {
