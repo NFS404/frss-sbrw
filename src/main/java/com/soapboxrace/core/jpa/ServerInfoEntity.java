@@ -45,6 +45,8 @@ public class ServerInfoEntity {
 	private String serverVersion;
 	@Transient
 	private boolean modernAuthSupport;
+	@Transient
+	private float playerCountRewardMultiplier;
 
 	public String getMessageSrv() {
 		return messageSrv;
@@ -212,5 +214,13 @@ public class ServerInfoEntity {
 
 	public void setPasswordResetUrl(String passwordResetUrl) {
 		this.passwordResetUrl = passwordResetUrl;
+	}
+
+	public float getPlayerCountRewardMultiplier() {
+		return playerCountRewardMultiplier;
+	}
+
+	public void setPlayerCountRewardMultiplier(float playerCountRewardMultiplier) {
+		this.playerCountRewardMultiplier = playerCountRewardMultiplier;
 	}
 }

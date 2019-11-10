@@ -1,31 +1,16 @@
 package com.soapboxrace.core.bo;
 
-import java.util.List;
-
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-
 import com.soapboxrace.core.bo.util.RewardVO;
 import com.soapboxrace.core.dao.AchievementDAO;
 import com.soapboxrace.core.dao.LevelRepDAO;
 import com.soapboxrace.core.dao.PersonaDAO;
 import com.soapboxrace.core.dao.ProductDAO;
-import com.soapboxrace.core.jpa.CarSlotEntity;
-import com.soapboxrace.core.jpa.CardDecks;
-import com.soapboxrace.core.jpa.EventEntity;
-import com.soapboxrace.core.jpa.PersonaEntity;
-import com.soapboxrace.core.jpa.ProductEntity;
-import com.soapboxrace.core.jpa.SkillModPartEntity;
-import com.soapboxrace.core.jpa.SkillModRewardType;
-import com.soapboxrace.jaxb.http.Accolades;
-import com.soapboxrace.jaxb.http.ArbitrationPacket;
-import com.soapboxrace.jaxb.http.ArrayOfLuckyDrawItem;
-import com.soapboxrace.jaxb.http.EnumRewardCategory;
-import com.soapboxrace.jaxb.http.EnumRewardType;
-import com.soapboxrace.jaxb.http.LuckyDrawInfo;
-import com.soapboxrace.jaxb.http.LuckyDrawItem;
-import com.soapboxrace.jaxb.http.Reward;
-import com.soapboxrace.jaxb.http.RewardPart;
+import com.soapboxrace.core.jpa.*;
+import com.soapboxrace.jaxb.http.*;
+
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import java.util.List;
 
 @Stateless
 public class RewardBO {
@@ -56,6 +41,9 @@ public class RewardBO {
 	
 	@EJB
 	private AchievementDAO achievementDAO;
+
+	@EJB
+	private OnlineUsersBO onlineUsersBO;
 
 	public Reward getFinalReward(Integer rep, Integer cash) {
 		Reward finalReward = new Reward();
@@ -228,8 +216,15 @@ public class RewardBO {
 		return Math.min(timeConst, 1f);
 	}
 
-	public int getBaseReward(float baseReward, float playerLevelConst, float timeConst) {
-		Float baseRewardResult = baseReward * playerLevelConst * timeConst;
+	public Float getPlayerCountConst() {
+		float divider = parameterBO.getFloatParam("PLAYERCOUNT_REWARD_DIVIDER", 0f);
+		if (divider == 0) return 1f;
+		int playerCount = onlineUsersBO.getNumberOfUsersOnlineNow();
+		return 1f + playerCount / divider;
+	}
+
+	public int getBaseReward(float baseReward, float playerLevelConst, float timeConst, float playerCountConst) {
+		Float baseRewardResult = baseReward * playerLevelConst * timeConst * playerCountConst;
 		return baseRewardResult.intValue();
 	}
 
@@ -239,8 +234,9 @@ public class RewardBO {
 		Float playerLevelRepConst = getPlayerLevelConst(personaEntity.getLevel(), eventEntity.getLevelRepRewardMultiplier());
 		Float playerLevelCashConst = getPlayerLevelConst(personaEntity.getLevel(), eventEntity.getLevelCashRewardMultiplier());
 		Float timeConst = getTimeConst(eventEntity.getLegitTime(), arbitrationPacket.getEventDurationInMilliseconds());
-		rewardVO.setBaseRep(getBaseReward(baseRep, playerLevelRepConst, timeConst));
-		rewardVO.setBaseCash(getBaseReward(baseCash, playerLevelCashConst, timeConst));
+		Float playerCountConst = getPlayerCountConst();
+		rewardVO.setBaseRep(getBaseReward(baseRep, playerLevelRepConst, timeConst, playerCountConst));
+		rewardVO.setBaseCash(getBaseReward(baseCash, playerLevelCashConst, timeConst, playerCountConst));
 	}
 
 	public void setRankReward(EventEntity eventEntity, ArbitrationPacket routeArbitrationPacket, RewardVO rewardVO) {

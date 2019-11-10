@@ -19,6 +19,9 @@ public class GetServerInformationBO {
 	@EJB
 	private ParameterBO parameterBO;
 
+	@EJB
+	private RewardBO rewardBO;
+
 	public ServerInfoEntity getServerInformation() {
 		ServerInfoEntity serverInfoEntity = serverInfoDAO.findInfo();
 		serverInfoEntity.setOnlineNumber(onlineUsersBO.getNumberOfUsersOnlineNow());
@@ -34,6 +37,7 @@ public class GetServerInformationBO {
 		}
 
 		serverInfoEntity.setModernAuthSupport(!parameterBO.getBoolParam("MODERN_AUTH_DISABLE"));
+		serverInfoEntity.setPlayerCountRewardMultiplier(rewardBO.getPlayerCountConst());
 
 		return serverInfoEntity;
 	}

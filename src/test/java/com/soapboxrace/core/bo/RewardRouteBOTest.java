@@ -1,13 +1,12 @@
 package com.soapboxrace.core.bo;
 
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import com.soapboxrace.core.bo.util.RewardVO;
 import com.soapboxrace.core.jpa.EventEntity;
 import com.soapboxrace.core.jpa.PersonaEntity;
 import com.soapboxrace.jaxb.http.RouteArbitrationPacket;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class RewardRouteBOTest {
 
@@ -50,7 +49,7 @@ public class RewardRouteBOTest {
 		float playerLevelConst = 1f;
 		float timeConst = 0.99999f;
 		Float baseRewardTest = baseReward * playerLevelConst * timeConst;
-		int baseRewardResult = rewardRouteBO.getBaseReward(baseReward, playerLevelConst, timeConst);
+		int baseRewardResult = rewardRouteBO.getBaseReward(baseReward, playerLevelConst, timeConst, 1f);
 		Assert.assertTrue(baseRewardTest.intValue() == baseRewardResult);
 	}
 
@@ -67,8 +66,8 @@ public class RewardRouteBOTest {
 		Float playerLevelCashConst = rewardRouteBO.getPlayerLevelConst(playerLevel, levelCashRewardMultiplier);
 		Float timeConst = rewardRouteBO.getTimeConst(legitTime.longValue(), routeTime.longValue());
 		Float playerLevelRepConst = rewardRouteBO.getPlayerLevelConst(playerLevel, levelRepRewardMultiplier);
-		int resultCashTest = rewardRouteBO.getBaseReward(baseCash, playerLevelCashConst, timeConst);
-		int resultRepTest = rewardRouteBO.getBaseReward(baseRep, playerLevelRepConst, timeConst);
+		int resultCashTest = rewardRouteBO.getBaseReward(baseCash, playerLevelCashConst, timeConst, 1f);
+		int resultRepTest = rewardRouteBO.getBaseReward(baseRep, playerLevelRepConst, timeConst, 1f);
 
 		eventEntity.setBaseCashReward(baseCash.intValue());
 		eventEntity.setBaseRepReward(baseRep.intValue());

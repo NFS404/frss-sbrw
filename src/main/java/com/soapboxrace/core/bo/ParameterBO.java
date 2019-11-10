@@ -1,12 +1,12 @@
 package com.soapboxrace.core.bo;
 
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-
 import com.soapboxrace.core.dao.ParameterDAO;
 import com.soapboxrace.core.dao.TokenSessionDAO;
 import com.soapboxrace.core.jpa.ParameterEntity;
 import com.soapboxrace.core.jpa.TokenSessionEntity;
+
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
 
 @Stateless
 public class ParameterBO {
@@ -109,6 +109,11 @@ public class ParameterBO {
 	public Float getFloatParam(String parameter) {
 		String parameterFromDB = getParameter(parameter);
 		return Float.valueOf(parameterFromDB);
+	}
+
+	public Float getFloatParam(String parameter, Float defaultValue) {
+		String parameterFromDB = getParameter(parameter);
+		return parameterFromDB == null || parameterFromDB.isEmpty() ? defaultValue : Float.valueOf(parameterFromDB);
 	}
 
 }
