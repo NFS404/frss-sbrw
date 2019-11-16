@@ -1,6 +1,7 @@
 package com.soapboxrace.core.jpa;
 
-import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.util.List;
@@ -29,23 +30,23 @@ public class CustomCarEntity {
 	private OwnedCarEntity ownedCar;
 
 	@OneToMany(mappedBy = "customCar", targetEntity = PaintEntity.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@BatchSize(size = 25)
+	@Fetch(FetchMode.SUBSELECT)
 	private List<PaintEntity> paints;
 
 	@OneToMany(mappedBy = "customCar", targetEntity = PerformancePartEntity.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@BatchSize(size = 25)
+	@Fetch(FetchMode.SUBSELECT)
 	private List<PerformancePartEntity> performanceParts;
 
 	@OneToMany(mappedBy = "customCar", targetEntity = SkillModPartEntity.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@BatchSize(size = 25)
+	@Fetch(FetchMode.SUBSELECT)
 	private List<SkillModPartEntity> skillModParts;
 
 	@OneToMany(mappedBy = "customCar", targetEntity = VinylEntity.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@BatchSize(size = 25)
+	@Fetch(FetchMode.SUBSELECT)
 	private List<VinylEntity> vinyls;
 
 	@OneToMany(mappedBy = "customCar", targetEntity = VisualPartEntity.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@BatchSize(size = 25)
+	@Fetch(FetchMode.SUBSELECT)
 	private List<VisualPartEntity> visualParts;
 
 	public Long getId() {
