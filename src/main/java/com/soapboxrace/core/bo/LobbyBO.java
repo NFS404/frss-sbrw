@@ -8,7 +8,6 @@ import com.soapboxrace.core.xmpp.XmppChat;
 import com.soapboxrace.core.xmpp.XmppLobby;
 import com.soapboxrace.jaxb.http.*;
 import com.soapboxrace.jaxb.xmpp.*;
-import org.igniterealtime.restclient.entity.MUCRoomEntity;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -18,7 +17,6 @@ import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Stateless
 public class LobbyBO {
@@ -80,15 +78,9 @@ public class LobbyBO {
 
 	public void sendAnnouncement(PersonaEntity personaEntity, EventEntity eventEntity) {
 		String message = XmppChat.createSystemMessage(personaEntity.getName() + " is looking for racers on " + eventEntity.getName());
-		List<MUCRoomEntity> rooms = openFireRestApiCli.getAllRooms()
-				.stream()
-				.filter(r -> r.getRoomName().startsWith("channel.") && !r.getRoomName().contains("cmd__"))
-				.collect(Collectors.toList());
-		for (MUCRoomEntity room : rooms) {
-			List<Long> occupants = openFireRestApiCli.getAllOccupantsInRoom(room.getRoomName());
-			for (Long occupant : occupants) {
-				openFireSoapBoxCli.send(message, occupant);
-			}
+		List<Long> sessions = openFireRestApiCli.getOnlinePersonas();
+		for (Long member : sessions) {
+			openFireRestApiCli.sendMessage(member, message);
 		}
 	}
 

@@ -3,15 +3,12 @@ package com.soapboxrace.core.bo;
 import com.soapboxrace.core.dao.ChatAnnouncementDAO;
 import com.soapboxrace.core.jpa.ChatAnnouncementEntity;
 import com.soapboxrace.core.xmpp.OpenFireRestApiCli;
-import com.soapboxrace.core.xmpp.OpenFireSoapBoxCli;
 import com.soapboxrace.core.xmpp.XmppChat;
-import org.igniterealtime.restclient.entity.MUCRoomEntity;
 
 import javax.ejb.EJB;
 import javax.ejb.Schedule;
 import javax.ejb.Stateless;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Stateless
 public class ChatAnnouncementsBO
@@ -22,9 +19,6 @@ public class ChatAnnouncementsBO
     @EJB
     private OpenFireRestApiCli restApiCli;
 
-    @EJB
-    private OpenFireSoapBoxCli openFireSoapBoxCli;
-
     private Long ticks = 0L;
 
     @Schedule(minute = "*", hour = "*", second = "*/5", persistent = false)
@@ -32,7 +26,7 @@ public class ChatAnnouncementsBO
     {
         ticks += 5;
 
-        List<MUCRoomEntity> allRooms = null;
+        List<Long> sessions = null;
 
         for (ChatAnnouncementEntity announcementEntity : chatAnnouncementDAO.findAll())
         {
@@ -40,23 +34,14 @@ public class ChatAnnouncementsBO
 
             if (ticks % announcementEntity.getAnnouncementInterval() == 0)
             {
-                if (allRooms == null) {
-                    allRooms = restApiCli.getAllRooms();
+                if (sessions == null) {
+                    sessions = restApiCli.getOnlinePersonas();
                 }
-                List<MUCRoomEntity> channels = allRooms.stream()
-                        .filter(r -> r.getRoomName().startsWith(announcementEntity.getChannelMask().replace("*", "")))
-                        .collect(Collectors.toList());
 
                 String message = XmppChat.createSystemMessage(announcementEntity.getAnnouncementMessage());
 
-                for (MUCRoomEntity channel : channels)
-                {
-                    List<Long> members = restApiCli.getAllOccupantsInRoom(channel.getRoomName());
-
-                    for (Long member : members)
-                    {
-                        openFireSoapBoxCli.send(message, member);
-                    }
+                for (Long member : sessions) {
+                    restApiCli.sendMessage(member, message);
                 }
             }
         }
