@@ -235,13 +235,13 @@ public class CommerceBO {
 
 		// move to new method
 		int carclassHash = 872416321;
-		if (finalClassInt >= 250 && finalClassInt < 400) {
+		if (finalClassInt >= 249 && finalClassInt < 399) {
 			carclassHash = 415909161;
-		} else if (finalClassInt >= 400 && finalClassInt < 500) {
+		} else if (finalClassInt >= 400 && finalClassInt < 499) {
 			carclassHash = 1866825865;
-		} else if (finalClassInt >= 500 && finalClassInt < 600) {
+		} else if (finalClassInt >= 500 && finalClassInt < 599) {
 			carclassHash = -406473455;
-		} else if (finalClassInt >= 600 && finalClassInt < 750) {
+		} else if (finalClassInt >= 600 && finalClassInt < 749) {
 			carclassHash = -405837480;
 		} else if (finalClassInt >= 750) {
 			carclassHash = -2142411446;
