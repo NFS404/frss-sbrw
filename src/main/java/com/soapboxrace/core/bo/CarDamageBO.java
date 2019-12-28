@@ -30,10 +30,10 @@ public class CarDamageBO {
 		OwnedCarEntity ownedCarEntity = ownedCarDAO.findById(carId);
 		CarSlotEntity carSlotEntity = ownedCarEntity.getCarSlot();
 		int durability = ownedCarEntity.getDurability();
-		if (durability > 10) {
+		if (durability > 0) {
 			Integer calcDamage = numberOfCollision + ((int) (eventDuration / 60000)) * 2;
 			Integer newCarDamage = durability - calcDamage;
-			ownedCarEntity.setDurability(newCarDamage < 10 ? 10 : newCarDamage);
+			ownedCarEntity.setDurability(newCarDamage < 0 ? 0 : newCarDamage);
 			if (carSlotEntity != null) {
 				carSlotDao.update(carSlotEntity);
 			}
