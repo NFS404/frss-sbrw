@@ -1,19 +1,14 @@
 package com.soapboxrace.core.bo;
 
-import com.soapboxrace.core.dao.AchievementDAO;
-import com.soapboxrace.core.dao.EventDataDAO;
-import com.soapboxrace.core.dao.EventSessionDAO;
-import com.soapboxrace.core.dao.PersonaDAO;
-import com.soapboxrace.core.jpa.AchievementDefinitionEntity;
-import com.soapboxrace.core.jpa.EventDataEntity;
-import com.soapboxrace.core.jpa.EventSessionEntity;
-import com.soapboxrace.core.jpa.PersonaEntity;
+import com.soapboxrace.core.dao.*;
+import com.soapboxrace.core.jpa.*;
 import com.soapboxrace.jaxb.http.ExitPath;
 import com.soapboxrace.jaxb.http.PursuitArbitrationPacket;
 import com.soapboxrace.jaxb.http.PursuitEventResult;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.ws.rs.NotAuthorizedException;
 
 @Stateless
 public class EventResultPursuitBO {
@@ -38,6 +33,9 @@ public class EventResultPursuitBO {
 
 	@EJB
 	private CarDamageBO carDamageBO;
+
+	@EJB
+	private OwnedCarDAO ownedCarDAO;
 
 	public PursuitEventResult handlePursitEnd(EventSessionEntity eventSessionEntity, Long activePersonaId, PursuitArbitrationPacket pursuitArbitrationPacket,
 			Boolean isBusted) {
@@ -73,12 +71,18 @@ public class EventResultPursuitBO {
 		pursuitEventResult.setEventId(eventDataEntity.getEvent().getId());
 		pursuitEventResult.setEventSessionId(eventSessionId);
 		pursuitEventResult.setExitPath(ExitPath.EXIT_TO_FREEROAM);
-		pursuitEventResult.setHeat(1);
+		pursuitEventResult.setHeat(isBusted ? 1 : pursuitArbitrationPacket.getHeat());
 		pursuitEventResult.setInviteLifetimeInMilliseconds(0);
 		pursuitEventResult.setLobbyInviteId(0);
 		pursuitEventResult.setPersonaId(activePersonaId);
 
 		PersonaEntity persona = personaDAO.findById(activePersonaId);
+		OwnedCarEntity ownedCarEntity = ownedCarDAO.findById(pursuitArbitrationPacket.getCarId());
+		if (!ownedCarEntity.getCarSlot().getPersona().getPersonaId().equals(activePersonaId)) {
+			throw new NotAuthorizedException("That's not your car!");
+		}
+		ownedCarEntity.setHeat(pursuitEventResult.getHeat());
+		ownedCarDAO.update(ownedCarEntity);
 
 		achievementsBO.update(persona,
 				achievementDAO.findByName("achievement_ACH_CLOCKED_AIRTIME"),
