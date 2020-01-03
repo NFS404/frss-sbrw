@@ -8,6 +8,7 @@ import com.soapboxrace.core.jpa.AchievementDefinitionEntity;
 import com.soapboxrace.core.jpa.EventDataEntity;
 import com.soapboxrace.core.jpa.EventSessionEntity;
 import com.soapboxrace.core.jpa.PersonaEntity;
+import com.soapboxrace.core.xmpp.DNFTimerManager;
 import com.soapboxrace.core.xmpp.OpenFireSoapBoxCli;
 import com.soapboxrace.core.xmpp.XmppEvent;
 import com.soapboxrace.jaxb.http.*;
@@ -43,6 +44,9 @@ public class EventResultDragBO {
 
 	@EJB
 	private CarDamageBO carDamageBO;
+
+	@EJB
+	private DNFTimerManager timerManager;
 
 	public DragEventResult handleDragEnd(EventSessionEntity eventSessionEntity, Long activePersonaId, DragArbitrationPacket dragArbitrationPacket) {
 		Long eventSessionId = eventSessionEntity.getId();
@@ -94,6 +98,7 @@ public class EventResultDragBO {
 				xmppEvent.sendDragEnd(dragEntrantResultResponse);
 				if (dragArbitrationPacket.getRank() == 1) {
 					xmppEvent.sendEventTimingOut(eventSessionId);
+					timerManager.schedule(eventSessionId, racer.getPersonaId());
 				}
 			}
 		}

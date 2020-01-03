@@ -8,6 +8,7 @@ import com.soapboxrace.core.jpa.AchievementDefinitionEntity;
 import com.soapboxrace.core.jpa.EventDataEntity;
 import com.soapboxrace.core.jpa.EventSessionEntity;
 import com.soapboxrace.core.jpa.PersonaEntity;
+import com.soapboxrace.core.xmpp.DNFTimerManager;
 import com.soapboxrace.core.xmpp.OpenFireSoapBoxCli;
 import com.soapboxrace.core.xmpp.XmppEvent;
 import com.soapboxrace.jaxb.http.*;
@@ -43,6 +44,9 @@ public class EventResultTeamEscapeBO {
 
 	@EJB
 	private CarDamageBO carDamageBO;
+
+	@EJB
+	private DNFTimerManager timerManager;
 
 	public TeamEscapeEventResult handleTeamEscapeEnd(EventSessionEntity eventSessionEntity, Long activePersonaId,
 			TeamEscapeArbitrationPacket teamEscapeArbitrationPacket) {
@@ -108,6 +112,7 @@ public class EventResultTeamEscapeBO {
 				xmppEvent.sendTeamEscapeEnd(teamEscapeEntrantResultResponse);
 				if (teamEscapeArbitrationPacket.getRank() == 1) {
 					xmppEvent.sendEventTimingOut(eventSessionId);
+					timerManager.schedule(eventSessionId, racer.getPersonaId());
 				}
 			}
 		}
