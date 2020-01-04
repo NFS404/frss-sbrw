@@ -1,14 +1,10 @@
 package com.soapboxrace.core.bo;
 
+import com.soapboxrace.core.jpa.EventSessionEntity;
+import com.soapboxrace.jaxb.http.*;
+
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-
-import com.soapboxrace.core.jpa.EventSessionEntity;
-import com.soapboxrace.jaxb.http.ArbitrationPacket;
-import com.soapboxrace.jaxb.http.DragArbitrationPacket;
-import com.soapboxrace.jaxb.http.PursuitArbitrationPacket;
-import com.soapboxrace.jaxb.http.RouteArbitrationPacket;
-import com.soapboxrace.jaxb.http.TeamEscapeArbitrationPacket;
 
 @Stateless
 public class LegitRaceBO {
@@ -36,10 +32,6 @@ public class LegitRaceBO {
 
 		if (!legit) {
 			socialBo.sendReport(0L, activePersonaId, 3, String.format("Abnormal event time: %d", timeDiff), (int) arbitrationPacket.getCarId(), 0, arbitrationPacket.getHacksDetected());
-		}
-		if (arbitrationPacket.getHacksDetected() > 0) {
-			socialBo.sendReport(0L, activePersonaId, 3, "hacksDetected > 0", (int) arbitrationPacket.getCarId(), 0,
-					arbitrationPacket.getHacksDetected());
 		}
 		return legit;
 	}
