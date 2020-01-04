@@ -150,7 +150,7 @@ public class EventsBO {
 		rewardVO.setBaseRep(baseRep.intValue());
 		rewardVO.setBaseCash(baseCash.intValue());
 
-		float repDayMultiplier = parameterBO.getFloatParam("TH_REP_MULTIPLIER");
+		float repDayMultiplier = parameterBO.getFloatParam("TH_DAY_REP_MULTIPLIER");
 		float cashDayMultiplier = parameterBO.getFloatParam("TH_DAY_CASH_MULTIPLIER");
 
 		Float dayRep = baseRep + (repDayMultiplier * treasureHuntEntity.getStreak());
