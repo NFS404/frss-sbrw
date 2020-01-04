@@ -67,7 +67,7 @@ public class LobbyBO {
 	public void joinQueueEvent(Long personaId, int eventId) {
 		PersonaEntity personaEntity = personaDao.findById(personaId);
 		EventEntity eventEntity = eventDao.findById(eventId);
-		analyticsBO.sendEvent("Race", "Join Lobby", Integer.toString(eventId), personaEntity.getUser());
+		analyticsBO.sendEvent("Race", "Join Lobby", eventEntity.getName(), personaEntity.getUser());
 		List<LobbyEntity> lobbys = lobbyDao.findByEventStarted(eventId);
 		if (lobbys.size() == 0) {
 			createLobby(personaEntity, eventId, eventEntity.getCarClassHash(), false);
