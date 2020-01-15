@@ -45,7 +45,7 @@ public class MarshallerInterceptor implements MessageBodyWriter<Object> {
 		try {
 			JAXBContext jaxbContext = JAXBContextCache.get(object.getClass());
 			Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
+			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 			jaxbMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
 			if (annotations != null) {
 				for (Annotation annotation : annotations) {
