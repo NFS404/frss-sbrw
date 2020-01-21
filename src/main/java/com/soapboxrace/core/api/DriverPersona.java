@@ -1,21 +1,5 @@
 package com.soapboxrace.core.api;
 
-import java.io.InputStream;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import javax.ejb.EJB;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
-import javax.ws.rs.core.Response;
-
 import com.soapboxrace.core.api.util.ConcurrentUtil;
 import com.soapboxrace.core.api.util.Secured;
 import com.soapboxrace.core.bo.DriverPersonaBO;
@@ -31,6 +15,16 @@ import com.soapboxrace.jaxb.http.*;
 import com.soapboxrace.jaxb.util.MarshalXML;
 import com.soapboxrace.jaxb.util.UnmarshalXML;
 import com.soapboxrace.jaxb.xmpp.XMPP_ResponseTypePersonaBase;
+
+import javax.ejb.EJB;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
+import java.io.InputStream;
+import java.util.List;
+import java.util.regex.Pattern;
 
 @Path("/DriverPersona")
 public class DriverPersona
@@ -105,6 +99,9 @@ public class DriverPersona
 		{
 			return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Invalid name. Can only contain A-Z, 0-9, and can be between 3 and 15 characters.")
 					.build();
+		}
+		if (iconIndex < 0 || iconIndex > 25) {
+			return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Invalid iconIndex").build();
 		}
 
 		ArrayOfString nameReserveResult = bo.reserveName(name);
